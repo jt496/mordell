@@ -1,0 +1,8 @@
+[package]
+name = "mordell"
+version = "0.1"
+lean_version = "leanprover-community/lean:3.51.1"
+path = "src"
+
+[dependencies]
+mathlib = {git = "https://github.com/leanprover-community/mathlib", rev = "a3209ddf94136d36e5e5c624b10b2a347cc9d090"}
