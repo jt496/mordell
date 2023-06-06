@@ -3,13 +3,13 @@ import
   data.complex.basic
   algebra.euclidean_domain.basic
 
-
-/--
+/--Just checking if I can push to Github
 An Eisenstein integer is a number of the form `x+y*ω`, where `ω=e^(2*π*i/3)`
 and `x y :ℤ`.
 We shall write `ℤω` for the Type of Eisenstein integers, with an Eisenstein
 integer represented by its x- and y-coordinates.
 -/
+
 @[ext]
 structure ℤω : Type :=
   (x : ℤ)
