@@ -637,7 +637,7 @@ begin
 end
 
 noncomputable
-def div : ℤω → ℤω →ℤω :=
+def div : ℤω → ℤω → ℤω :=
   λ a b, nearest_ℤω (a/b)
 
 noncomputable

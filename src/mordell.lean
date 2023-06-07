@@ -4,9 +4,8 @@ import
   algebra.euclidean_domain.basic
 
 /--We will be considering quadratic integers of the form `x+y*α`, where `α=(1+√-7)/2`
-and `x y : ℤ`.
-We shall write `ℤα` for the Type of these integers, with a quadratic integer
-integer represented by its x- and y-coordinates.
+and `x y : ℤ`. We shall write `ℤα` for the Type of these integers,
+and represent them by their x- and y-coordinates.
 -/
 
 @[ext]
@@ -15,9 +14,11 @@ structure ℤα : Type :=
   (y : ℤ)
 
 namespace ℤα 
+
 /--
-We give lean a method for checking whether two Eisenstein integers are equal.
+We give lean a method for checking whether two such integers are equal.
 -/
+
 instance dec_eq : decidable_eq ℤα := λ a b,
 begin
   cases a with r s,
@@ -34,6 +35,7 @@ end
 We give lean a way of displaying elements of `ℤα` using the command `#eval`.
 TO DO : rewrite this using pattern matching.
 -/
+
 def repr (a : ℤα) : string :=
 begin
   by_cases a.x=0,
@@ -71,6 +73,7 @@ def add : ℤα → ℤα → ℤα := λ a b, ⟨ a.x+b.x, a.y+b.y ⟩
 def neg : ℤα → ℤα := λ a, ⟨ -a.x, -a.y ⟩
 
 /--Using the fact that α^2 = α - 2, we obtain the rule for multiplication-/
+
 def mul : ℤα → ℤα → ℤα := λ a b, ⟨ a.x*b.x - 2*a.y*b.y, a.x*b.y + a.y*b.x + a.y*b.y ⟩
 
 variables a b c : ℤα  
@@ -463,5 +466,290 @@ begin
   }
 end
 
+/-- Next we work towards establishing Euclidean division in ℤα. 
+First we show that for any complex number, there exists an element of
+ℤα less than a distance 1 away.
+-/
+
+noncomputable
+def nearest_ℤα ( z : ℂ ) :  ℤα :=
+  let y := round ( 2*rt_7⁻¹ * z.im) in
+  {
+    y := y,
+    x := round (z.re - 2⁻¹ * y)
+  }
+
+lemma self_sub_round_sq ( x : ℝ ) :
+  (x-round x)^2 ≤ (2⁻¹)^2  :=
+begin
+  rw sq_le_sq,
+  have bound:= abs_sub_round x,
+  have :|(2⁻¹:ℝ)| = 1/2 := by
+    simp only [one_div, abs_eq_self, inv_nonneg,
+               zero_le_bit0, zero_le_one],
+  rwa this,
+end
+
+/--
+We will use this in the case `c = √7/2`. 
+-/
+
+lemma sub_mul_round { c : ℝ } ( x : ℝ) (c_pos : c>0) :
+  |x - c * round (c⁻¹ * x)| ≤  2⁻¹ * c :=
+begin
+  have hc : c* c⁻¹ = 1,
+  {
+    apply mul_inv_cancel,
+    exact ne_of_gt c_pos,
+  },
+  have h_abs_c : |c| = c := abs_of_pos c_pos,
+  have := abs_mul (c⁻¹ * x - round ( c⁻¹ * x )) c,
+  rw sub_mul at this,
+  rw mul_comm at this,
+  rw ← mul_assoc at this,
+  rw [hc,one_mul,mul_comm] at this,
+  rw this, clear this,
+  have := abs_sub_round (c⁻¹ * x),
+  rw h_abs_c,
+  rw mul_le_mul_right c_pos,
+  rwa one_div at this,
+end
+
+lemma im_sub_nearest ( z : ℂ ) :
+  (z-nearest_ℤα z).im^2 ≤ (4⁻¹ * rt_7)^2 :=
+begin
+  rw sq_le_sq,
+  cases z with x y,
+  unfold nearest_ℤα,
+  dsimp,
+  simp only [coe_of_mk], clear x,
+  have := sub_mul_round y (_ : 2⁻¹ *rt_7 > 0),
+  rw mul_comm at this,
+  have arith :2⁻¹ * (2⁻¹ * rt_7 ) = | 4⁻¹ * rt_7 |,
+  {
+    ring_nf,
+    symmetry,
+    apply abs_of_pos,
+    norm_num,
+  },
+  rwa arith at this, clear arith,
+  ring_nf at this ⊢,
+  have arith : (1/2 * rt_7)⁻¹ = 2 * rt_7⁻¹,
+  {
+    simp only [mul_comm, one_div, mul_inv_rev, inv_inv],
+  },
+  rwa arith at this,
+  {
+    norm_num,
+  }
+end
+
+lemma re_sub_nearest ( z : ℂ ) :
+  (z-nearest_ℤα z).re^2 ≤ (2⁻¹)^2 :=
+begin
+  rw sq_le_sq,
+  cases z with x y,
+  unfold nearest_ℤα,
+  dsimp,
+  simp only [coe_of_mk],
+  ring_nf,
+  rw add_sub,
+  have : | (1/2 : ℝ) | = 1/2 :=
+    by simp only [one_div, abs_eq_self, inv_nonneg,
+                  zero_le_bit0, zero_le_one],
+  rw this,
+  exact abs_sub_round _,
+end
+
+/-This is the key lemma-/
+
+lemma norm_sub_nearest_ℤα_self_lt (z:ℂ) :
+  norm_sq ( z - nearest_ℤα z ) < 1 :=
+begin
+  have hre := re_sub_nearest z,
+  have him := im_sub_nearest z,
+  unfold norm_sq,
+  dsimp,
+  simp only [← pow_two], 
+  have arith : (2:ℝ)⁻¹ ^ 2 + (4⁻¹ * rt_7)^2 < 1,
+  {
+    ring_nf,
+    simp only [one_div, rt_7_sq],
+    norm_num,
+  },
+  have near := add_le_add hre him,
+  have := lt_of_le_of_lt near arith,
+  clear near arith hre him,
+  rwa [sub_re,sub_im] at this,
+end
+
+/-- We establish Euclidean division of the form a = b*q+r,
+where q is div a b, and r is mod a b.
+-/
+
+noncomputable
+def div : ℤα → ℤα → ℤα :=
+  λ a b, nearest_ℤα (a/b)
+
+noncomputable
+def mod : ℤα → ℤα → ℤα :=
+  λ a b, a - b * (div a b)
+
+noncomputable
+instance has_mod_ℤα : has_mod ℤα :=
+{ mod := mod }
+
+noncomputable
+instance has_div_ℤα : has_div ℤα := { div := div }
+
+theorem div_add_mod :
+  b *(a/b) + (a%b) = a :=
+begin
+  change b * div a b + mod a b = a,
+  simp [mod],
+end
+
+/- Importantly, we must have N(r) < N(q) for Euclidean division -/
+
+theorem norm_sq_mod_lt (h : b ≠ 0) :
+  nat_Norm (mod a b) < nat_Norm b :=
+begin
+  suffices : complex.norm_sq (mod a b) < norm_sq b,
+  {
+    simp only [nat_Norm_coe] at this,
+    exact_mod_cast this,
+  },
+  simp [mod,div],
+  have bound : complex.norm_sq ( a/b - nearest_ℤα (a/b) ) < 1 :=
+    norm_sub_nearest_ℤα_self_lt (a/b:ℂ),
+  have : ((a/b:ℂ) - nearest_ℤα (a/b)) = (a - nearest_ℤα (a/b)*b)*b⁻¹,
+  {
+    ring_nf,
+    have : (b:ℂ)* (b:ℂ)⁻¹ = 1,
+    {
+      apply mul_inv_cancel,
+      simpa [coe_eq_zero] using h,
+    },
+    congr,
+    rw mul_comm (b:ℂ),
+    rw _root_.mul_assoc,
+    rw this,
+    rw _root_.mul_one,
+  },
+  rw this at bound, clear this,
+  rw norm_sq_mul at bound,
+  rw norm_sq_inv at bound,
+  have bound2 : 0 < (complex.norm_sq b),
+  {
+    rw norm_sq_pos,
+    intro h',
+    rw coe_eq_zero at h',
+    contradiction,
+  },
+  rw mul_inv_lt_iff bound2 at bound,
+  rw mul_one at bound,
+  rw mul_comm at bound,
+  rw coe_sub,
+  rw coe_mul,
+  assumption,
+end
+
+/-Ok but why are we just casually dividing by 0?-/
+
+lemma my_quotient_zero : div a 0 = 0 :=
+begin
+  unfold div,
+  have : ((0:ℤα):ℂ)=0:= my_map_zero,
+  rw [this,div_zero],
+  unfold nearest_ℤα,
+  ext;
+  dsimp;
+  simp only [mul_zero, round_zero, algebra_map.coe_zero, sub_zero];
+  refl,
+end
+
+lemma my_mul_left_not_lt (hb : b ≠ 0) :
+  ¬ (nat_Norm (a*b) < nat_Norm a) :=
+begin
+  rw nat_Norm_mul,
+  intro h,
+  apply hb, clear hb,
+  rw ← nat_Norm_eq_zero_iff,
+  cases b.nat_Norm,
+  { refl },
+  {
+    exfalso,
+    rw nat.mul_succ at h,
+    simpa only [add_lt_iff_neg_right, not_lt_zero'] using h,
+  }
+end
+
+noncomputable
+instance euclidean_ℤα : euclidean_domain ℤα :=
+{ add := add,
+  zero := ⟨0,0⟩,
+  zero_add := zero_add,
+  add_zero := add_zero,
+  add_assoc := add_assoc,
+  neg := neg,
+  add_left_neg := add_left_neg,
+  add_comm := add_comm,
+  one := ⟨1,0⟩,
+  mul := mul,
+  mul_assoc := mul_assoc,
+  one_mul := one_mul,
+  mul_one := mul_one,
+  left_distrib := left_distrib,
+  right_distrib := right_distrib,
+  mul_comm := mul_comm,
+  exists_pair_ne := begin
+    use 0,
+    use 1,
+    dec_trivial,
+  end,
+  quotient := div,
+  quotient_zero := my_quotient_zero,
+  remainder := mod,
+  quotient_mul_add_remainder_eq := div_add_mod,
+  r := λ a b, nat_Norm a < nat_Norm b,
+  r_well_founded := begin
+    refine inv_image.wf (λ (a₁ : ℤα), nat_Norm a₁) _,
+    exact { apply := _ },
+    exact well_founded_lt.apply,
+  --What does this mean?
+  end,
+  remainder_lt := λ a b, by simpa using norm_sq_mod_lt a b,
+  mul_left_not_lt := my_mul_left_not_lt
+}
+
+open euclidean_domain
+
+/- Here is Bezout's theorem for ℤα. -/
+#check euclidean_domain.gcd_eq_gcd_ab a b
+
+/- Alternatively, we can prove it ourselves. -/
+theorem Bezout (a b : ℤα) :
+  ∃ h k : ℤα , h*a + k*b = gcd a b :=
+begin
+  apply gcd.induction a b,
+  {
+    intro a,
+    use 0,
+    use 1,
+    rw gcd_zero_left a,
+    rw [_root_.mul_zero,_root_.zero_add,_root_.one_mul],
+  },
+  {
+    intros a b ha hab,
+    rw gcd_val,
+    rcases hab with ⟨ r,  s, hrs⟩,
+    use s - r * (b/a),
+    use r,
+    rw ← hrs, clear hrs,
+    have := div_add_mod b a,
+    nth_rewrite 1 ← this,
+    ring,
+  }
+end
 
 end ℤα
