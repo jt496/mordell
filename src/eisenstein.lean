@@ -223,7 +223,7 @@ begin
   rw ← real.sqrt_mul this 3,
   rw real.sqrt_mul_self this,
 end
-#print rt_3_sq
+
 @[simp]
 lemma sqrt_3_inv_mul_self :
   rt_3⁻¹ * rt_3 = 1 :=
