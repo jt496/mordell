@@ -68,6 +68,7 @@ instance ℤα_repr : has_repr ℤα :=
 def zero : ℤα := ⟨0,0⟩
 def one : ℤα := ⟨1,0⟩
 def α : ℤα := ⟨0,1⟩
+def α_bar : ℤα := ⟨1,-1⟩
 def add : ℤα → ℤα → ℤα := λ a b, ⟨ a.x+b.x, a.y+b.y ⟩
 def neg : ℤα → ℤα := λ a, ⟨ -a.x, -a.y ⟩
 
@@ -208,9 +209,6 @@ end
 
 noncomputable
 def complex_α : ℂ := ⟨ 1/2,  rt_7 / 2 ⟩ 
-
-noncomputable
-def complex_α_bar : ℂ := star complex_α 
 
 @[simp]
 lemma complex_α_sq : complex_α^2 = complex_α - 2 :=
@@ -608,7 +606,7 @@ begin
   change b * div a b + mod a b = a,
   simp [mod],
 end
-
+  
 /- Importantly, we must have N(r) < N(q) for Euclidean division -/
 
 theorem norm_sq_mod_lt (h : b ≠ 0) :
@@ -751,44 +749,6 @@ begin
     ring,
   }
 end
-
------------------Move this into Mordell later-------------
-
-lemma conj_α:
-  star complex_α = complex_α_bar :=
-  begin
-  unfold complex_α complex_α_bar,
-  end 
-
---Shows that the factorization of y^2-y+2 is valid.
-lemma my_factorization (y:ℤ):
-  (y:ℂ)^2-y+2 = (y-complex_α)*(y-star_ring_end ℂ complex_α):=
-  begin
-
-  have p : ((y:ℂ) - (star_ring_end ℂ complex_α)) = star_ring_end ℂ (y - complex_α) 
-    := by simp,
-  rw p,
-  rw mul_conj (y - complex_α),
-  clear p,
-  rw norm_sq_sub y complex_α,
-  simp,
-  have s : ((y:ℝ):ℂ) = (y:ℂ) := by refl,
-  nth_rewrite 2 ← s,
-  rw norm_sq_of_real y,
-  unfold complex_α,
-  norm_cast,
-  simp,
-  ring_nf,
-  simp,
-  ring_nf,
-  end
-
-theorem dioph_eq (x y: ℤ) : 
-  x^3=y^2-y+2 → (x=2 ∧ y=-2) ∨ (x=2 ∧ y=3) :=
-  begin
-  intro h,
-  sorry,
-  end
 
 
 
