@@ -13,10 +13,21 @@ variables (a b : ℤα)
 open complex
 open euclidean_domain
 
-lemma conj_α:
-  star_ring_end ℂ complex_α = α_bar :=
+lemma conj_α: star_ring_end ℂ complex_α = α_bar :=
   begin
-  sorry
+  unfold α_bar complex_α,
+  have h : star_ring_end ℂ ⟨1/2, (rt_7/2)⟩ = ⟨1/2, -rt_7/2⟩ := by ring_nf,
+  rw h,
+  clear h,
+  have p := re_of_coe,
+  have q := im_of_coe,
+  specialize p (⟨1, -1⟩:ℤα),
+  specialize q (⟨1, -1⟩:ℤα),
+  simp at p q,
+  ring_nf at p,
+  ext,
+  rw p,
+  rw q,
   end 
 
 --Shows that the factorization of y^2-y+2 is valid.
