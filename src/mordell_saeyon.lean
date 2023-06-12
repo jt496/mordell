@@ -94,7 +94,7 @@ end
 #check mod_nonneg
 #check int.mod_lt
 
--- find mathlib lemma for y % 7 = 4 → ∃k, y = 7k+4
+-- find mathlib lemma for y % 7 = 4 → ∃k, y = 7k+4..
 -- use interval_cases and the above lemmas
 lemma seven_dvd_pol (h : 7 ∣ y^2 - y + 2) : y % 7 = 4 :=
 begin
