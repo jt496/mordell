@@ -1,8 +1,10 @@
 import
   tactic
   data.complex.basic
-  algebra.euclidean_domain.basic
+  ring_theory.euclidean_domain
   .rt_7_ring
+  ring_theory.coprime.basic
+  ring_theory.principal_ideal_domain
 
 namespace ℤα
 variables (a b : ℤα)
@@ -11,7 +13,19 @@ variables (a b : ℤα)
 #print instances  euclidean_domain
 
 open complex
+open int
 open euclidean_domain
+
+section mordell
+parameters { x y : ℤ } {sol : x^3 = y^2 - y + 2}
+
+instance : is_principal_ideal_ring ℤα := infer_instance
+#print instances is_principal_ideal_ring
+
+#print instances normalized_gcd_monoid
+
+noncomputable
+def d := gcd ((y:ℤα)-α) ((y:ℤα)-α_bar)
 
 lemma conj_α: star_ring_end ℂ complex_α = α_bar :=
   begin
@@ -46,12 +60,64 @@ lemma my_factorization (y:ℤ):
   ring_nf,
   end
 
-lemma factors_coprime : ∀y:ℤ, is_coprime ((y:ℤα)-α) ((y:ℤα)-α_bar) :=
+lemma d_dvd_sqrt_seven_i : d ∣ α - α_bar :=
 begin
-  intro y,
-  by_contra,
-  sorry,
+sorry,
 end
+
+lemma norm_seven : nat_Norm (α - α_bar) = 7 :=
+begin
+sorry,
+end
+
+lemma nd_dvd_seven : Norm d ∣ 7 :=
+begin
+sorry,
+end
+
+lemma nd_one_or_seven : Norm d = 1 ∨ Norm d = 7 :=
+begin
+sorry,
+end
+
+-- Using the fact that d divides y-α
+lemma nd_dvd_pol : Norm d ∣ y^2 - y + 2 :=
+begin
+sorry,
+end
+
+lemma sev_dvd_x_cubed (h : 7 ∣ x^3) : 7 ∣ x :=
+begin
+sorry,
+end
+
+#check mod_nonneg
+#check int.mod_lt
+
+-- find mathlib lemma for y % 7 = 4 → ∃k, y = 7k+4
+-- use interval_cases and the above lemmas
+lemma seven_dvd_pol (h : 7 ∣ y^2 - y + 2) : y % 7 = 4 :=
+begin
+sorry,
+end
+
+--gcd_is_unit_iff is a useful theorem
+
+lemma unit_iff_norm_one (a : ℤα) : is_unit a ↔ Norm a = 1 :=
+begin
+sorry,
+end
+
+lemma units_are (a : ℤαˣ): a = 1 ∨ a = -1 := 
+begin
+sorry,
+end
+
+lemma irred_pol : ¬(7^2 ∣ y^2 - y + 2) := 
+begin
+sorry,
+end
+
 
 lemma norm_divides (a p : ℤα):
   (p ∣ a) → ((nat_Norm p) ∣ (nat_Norm a)):=
@@ -59,9 +125,20 @@ lemma norm_divides (a p : ℤα):
   intro h,
   have r : (∃ k : ℕ, (nat_Norm p)*k = nat_Norm a) → ((nat_Norm p) ∣ (nat_Norm a)):=
   begin
-    sorry
+    intro q,
+    cases q with k hk,
+    use k,
+    symmetry,
+    exact hk,
   end,
-  have s : (p ∣ a) → ∃ k : ℤα, p*k = a:= by sorry,
+  have s : (p ∣ a) → ∃ k : ℤα, p*k = a:=
+  begin
+  intro q,
+  cases q with r s,
+  use r,
+  symmetry,
+  exact s,
+  end,
   have q := s h,
   apply r,
   clear h r s,
@@ -71,8 +148,16 @@ lemma norm_divides (a p : ℤα):
   rw hn,
   end
 
+lemma norm_α : Norm (y - α) = y^2 - y + 2 :=
+begin
+sorry,
+end
 
-
+lemma factors_coprime : is_coprime ((y:ℤα)-α) ((y:ℤα)-α_bar) :=
+begin
+  by_contra,
+  sorry,
+end
 
 --Main theorem
 theorem dioph_eq (x y: ℤ) : 
@@ -82,4 +167,8 @@ theorem dioph_eq (x y: ℤ) :
   sorry,
   end
 
+
+end mordell
 end ℤα
+
+
