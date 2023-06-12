@@ -425,6 +425,11 @@ begin
   exact norm_sq_nonneg _,
 end
 
+lemma equiv_norms (v:ℤα) : Norm v = (nat_Norm(v):ℤ) :=
+begin
+sorry,
+end
+
 lemma Norm_mul :
   Norm (a*b) = Norm a * Norm b :=
 begin

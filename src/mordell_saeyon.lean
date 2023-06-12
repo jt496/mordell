@@ -5,6 +5,7 @@ import
   .rt_7_ring
   ring_theory.coprime.basic
   ring_theory.principal_ideal_domain
+  number_theory.divisors
 
 namespace ℤα
 variables (a b : ℤα)
@@ -86,9 +87,48 @@ begin
 sorry,
 end
 
-lemma nd_one_or_seven : Norm d = 1 ∨ Norm d = 7 :=
+lemma seven_prime : nat.prime 7 :=
 begin
 sorry,
+end
+
+
+
+lemma nd_one_or_seven : Norm d = 1 ∨ Norm d = 7 :=
+begin
+
+have h := nd_dvd_seven,
+
+have q : nat_Norm d ∣ 7 := sorry,
+begin
+  --rw equiv_norms at h,
+  --exact_mod_cast h,
+sorry,
+end,
+
+have r : nat_Norm d ∈ (7:ℕ).divisors := sorry,
+
+have t := nat.mem_divisors_prime_pow (seven_prime),
+have s : (7:ℕ)^1 = 7 := by ring_nf,
+{ rw ← s at r,
+  rw t 1 at r,
+  cases r with w hw,
+  cases hw with b hb,
+  have c: w = 0 ∨ w = 1 := sorry,
+  cases c with c1 c2,
+  rw c1 at hb,
+  left,
+  simp at hb,
+  rw equiv_norms,
+  exact_mod_cast hb,
+  right,
+  rw c2 at hb,
+  simp at hb,
+  rw equiv_norms,
+  exact_mod_cast hb,
+},
+exact y,
+exact y,
 end
 
 -- Using the fact that d divides y-α
