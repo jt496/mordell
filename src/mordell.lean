@@ -90,7 +90,18 @@ lemma my_factorization:
 
 lemma d_dvd_sqrt_seven_i : d ∣ α - α_bar :=
 begin
-sorry,
+change ∃(k:ℤα), α - α_bar = d*k,
+have h : d ∣ y - α := gcd_dvd_left (y - α) (y - α_bar),
+have q : d ∣ y - α_bar := gcd_dvd_right (y - α) (y - α_bar), 
+change ∃(j:ℤα), (y:ℤα) - α = d*j at h,
+change ∃(g:ℤα), (y:ℤα) - α_bar = d*g at q,
+cases h with j hj,
+cases q with g hg,
+use (g - j),
+rw mul_sub,
+rw ←  hg,
+rw ← hj,
+ring_nf,
 end
 
 lemma norm_seven : Norm (α - α_bar) = 7 :=

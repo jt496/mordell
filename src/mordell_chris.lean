@@ -44,17 +44,45 @@ lemma conj_α: star_ring_end ℂ complex_α = α_bar :=
   rw q,
   end 
 
+  lemma norm_divides (a p : ℤα):
+  (p ∣ a) → (Norm p ∣ Norm a):=
+  begin
+  intro h,
+  have r : (∃ k : ℤ, Norm a = (Norm p)*k) → ((Norm p) ∣ (Norm a)):=
+    begin
+    rintro ⟨k, hk⟩,
+    use k,
+    exact hk,
+    end,
+  have s : (p ∣ a) → ∃ k : ℤα, a = p*k:=
+    begin
+    rintro ⟨r, hr⟩,
+    use r,
+    exact hr,
+    end,
+  have q := s h,
+  apply r,
+  clear h r s,
+  cases q with n hn,
+  use Norm n,
+  rw ← Norm_mul p n,
+  rw hn,
+  end
+
+lemma coe_from_ints (a:ℤ) : (a:ℤα) = (⟨a, 0⟩:ℤα) :=
+begin
+sorry,
+end
+
 --Shows that the factorization of y^2-y+2 is valid.
-lemma my_factorization (y:ℤ):
+lemma my_factorization:
   (y:ℤα)^2-y+2 = (y-α)*(y-α_bar):=
   begin
   transitivity (y:ℤα)^2 - (α+α_bar)*y + α*α_bar, {
     congr,
     have r : α + α_bar = one := by ring_nf,
     rw r,
-    have h := my_one_mul,
-    specialize h (y:ℤα),
-    have q : one*(y:ℤα)=(y:ℤα) := h,
+    have q : one*(y:ℤα)=(y:ℤα) := my_one_mul (y:ℤα),
     rw q,
   },
   ring_nf,
@@ -76,19 +104,34 @@ rw ← hj,
 ring_nf,
 end
 
-lemma norm_seven : nat_Norm (α - α_bar) = 7 :=
+lemma norm_seven : Norm (α - α_bar) = 7 :=
 begin
-sorry,
+unfold Norm α α_bar,
+ring_nf,
 end
 
+--Why is it showing y:ℤ as a hypothesis?
 lemma nd_dvd_seven : Norm d ∣ 7 :=
 begin
-sorry,
+have h := d_dvd_sqrt_seven_i,
+have q := norm_divides (α - α_bar) d h,
+rw norm_seven at q,
+exact q,
 end
 
 lemma nd_one_or_seven : Norm d = 1 ∨ Norm d = 7 :=
 begin
-sorry,
+have h := nd_dvd_seven,
+have q : nat_Norm d ∣ 7 := sorry,
+
+end
+
+lemma norm_y_minus_α : Norm (y-α) = y^2 - y + 2 :=
+begin
+have h : (y:ℤα)-α = (⟨y,-1⟩:ℤα) := by sorry,
+rw h,
+unfold Norm,
+ring_nf,
 end
 
 -- Using the fact that d divides y-α
@@ -105,7 +148,7 @@ end
 #check mod_nonneg
 #check int.mod_lt
 
--- find mathlib lemma for y % 7 = 4 → ∃k, y = 7k+4..
+-- find mathlib lemma for y % 7 = 4 → ∃k, y = 7k+4
 -- use interval_cases and the above lemmas
 lemma seven_dvd_pol (h : 7 ∣ y^2 - y + 2) : y % 7 = 4 :=
 begin
@@ -125,41 +168,6 @@ sorry,
 end
 
 lemma irred_pol : ¬(7^2 ∣ y^2 - y + 2) := 
-begin
-sorry,
-end
-
-
-lemma norm_divides (a p : ℤα):
-  (p ∣ a) → ((nat_Norm p) ∣ (nat_Norm a)):=
-  begin
-  intro h,
-  have r : (∃ k : ℕ, (nat_Norm p)*k = nat_Norm a) → ((nat_Norm p) ∣ (nat_Norm a)):=
-  begin
-    intro q,
-    cases q with k hk,
-    use k,
-    symmetry,
-    exact hk,
-  end,
-  have s : (p ∣ a) → ∃ k : ℤα, p*k = a:=
-  begin
-  intro q,
-  cases q with r s,
-  use r,
-  symmetry,
-  exact s,
-  end,
-  have q := s h,
-  apply r,
-  clear h r s,
-  cases q with n hn,
-  use nat_Norm n,
-  rw ← nat_Norm_mul p n,
-  rw hn,
-  end
-
-lemma norm_α : Norm (y - α) = y^2 - y + 2 :=
 begin
 sorry,
 end
