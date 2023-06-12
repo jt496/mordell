@@ -5,6 +5,7 @@ import
   .rt_7_ring
   ring_theory.coprime.basic
   ring_theory.principal_ideal_domain
+  number_theory.divisors
 
 namespace ℤα
 variables (a b : ℤα)
@@ -121,9 +122,7 @@ end
 
 lemma nd_one_or_seven : Norm d = 1 ∨ Norm d = 7 :=
 begin
-have h := nd_dvd_seven,
-have q : nat_Norm d ∣ 7 := sorry,
-
+sorry,
 end
 
 lemma norm_y_minus_α : Norm (y-α) = y^2 - y + 2 :=

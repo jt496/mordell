@@ -5,6 +5,7 @@ import
   .rt_7_ring
   ring_theory.coprime.basic
   ring_theory.principal_ideal_domain
+  number_theory.divisors
 
 namespace ℤα
 variables (a b : ℤα)
