@@ -396,7 +396,7 @@ def Norm : ℤα → ℤ :=
   λ z, z.x^2 + z.x * z.y  + 2*z.y^2
 
 lemma norm_sq_coe :
-  norm_sq a = (Norm a : ℤ)  :=
+  norm_sq a = (Norm a : ℝ)  :=
 begin
   cases a with x y,
   simp [norm_sq,Norm],
@@ -427,7 +427,16 @@ end
 
 lemma equiv_norms (v:ℤα) : Norm v = (nat_Norm(v):ℤ) :=
 begin
-sorry,
+unfold nat_Norm,
+have p : 0 ≤ ((Norm v):ℝ) := begin
+rw ← norm_sq_coe,
+exact norm_sq_nonneg _,
+end,
+have h : 0 ≤ Norm v := by exact_mod_cast p,
+rw ← abs_eq_self at h,
+norm_cast,
+symmetry,
+exact h,
 end
 
 lemma Norm_mul :
