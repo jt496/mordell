@@ -7,6 +7,13 @@ import
   ring_theory.principal_ideal_domain
   number_theory.divisors
   algebra.group.units
+  data.nat.prime
+  ring_theory.int.basic
+  data.int.order.basic
+  data.int.modeq
+  algebra.ring.divisibility
+
+
   
 
 namespace ℤα
@@ -69,6 +76,8 @@ lemma conj_α: star_ring_end ℂ complex_α = α_bar :=
 
 lemma coe_from_ints (a:ℤ) : (a:ℤα) = (⟨a, 0⟩:ℤα) :=
 begin
+unfold_coes,
+
 sorry,
 end
 
@@ -172,14 +181,166 @@ end
 
 lemma sev_dvd_x_cubed (h : 7 ∣ x^3) : 7 ∣ x :=
 begin
-sorry,
+--suprising?
+have p := int.prime.dvd_pow (seven_prime) (h),
+have r : (7:ℤ) ∣ (x.nat_abs:ℤ) := by exact_mod_cast p,
+rw int.dvd_nat_abs at r,
+exact r,
 end
 
 -- find mathlib lemma for y % 7 = 4 → ∃k, y = 7k+4
 -- use interval_cases and the above lemmas
+lemma y_mod_seven (s:ℤ) (h : y % 7 = s) : ∃(k:ℤ), y = 7*k + s :=
+begin
+have q := int.dvd_sub_of_mod_eq h,
+cases q with l lh,
+use l,
+linarith,
+end 
+
+lemma y_eq_zero_mod_seven (h : 7 ∣ y^2 - y + 2) (p : y % 7 = 0) : false :=
+begin
+have t := y_mod_seven 0 p,
+cases t with k hk,
+rw hk at h,
+ring_nf at h,
+have r : 7 ∣ ((49 * k - 7) * k),
+{
+use (7*k*k - k),
+ring_nf,
+},
+rw dvd_add_right r at h,
+have j : (0:ℤ) < 2 := by linarith,
+have g := int.le_of_dvd j h,
+linarith,
+end
+
+lemma y_eq_one_mod_seven (h : 7 ∣ y^2 - y + 2) (p : y % 7 = 1) : false :=
+begin
+have t := y_mod_seven 1 p,
+cases t with k hk,
+rw hk at h,
+ring_nf at h,
+have r : 7 ∣ ((49 * k + 7) * k),
+{
+use (7*k*k + k),
+ring_nf,
+},
+rw dvd_add_right r at h,
+have j : (0:ℤ) < 2 := by linarith,
+have g := int.le_of_dvd j h,
+linarith,
+end
+
+lemma y_eq_two_mod_seven (h : 7 ∣ y^2 - y + 2) (p : y % 7 = 2) : false :=
+begin
+have t := y_mod_seven 2 p,
+cases t with k hk,
+rw hk at h,
+ring_nf at h,
+have r : 7 ∣ ((49 * k + 21) * k),
+{
+use (7*k*k + 3*k),
+ring_nf,
+},
+rw dvd_add_right r at h,
+have j : (0:ℤ) < 4 := by linarith,
+have g := int.le_of_dvd j h,
+linarith,
+end
+
+lemma y_eq_three_mod_seven (h : 7 ∣ y^2 - y + 2) (p : y % 7 = 3) : false :=
+begin
+have t := y_mod_seven 3 p,
+cases t with k hk,
+rw hk at h,
+ring_nf at h,
+have c : (8:ℤ) = 7*1 + 1 := by linarith,
+nth_rewrite 1 c at h,
+have r : 7 ∣ ((49 * k + 35) * k + 7),
+{
+use (7*k*k + 5*k + 1),
+ring_nf,
+},
+rw ← add_assoc at h,
+rw mul_one at h,
+rw dvd_add_right r at h,
+have j : (0:ℤ) < 1 := by linarith,
+have g := int.le_of_dvd j h,
+linarith,
+end
+
+lemma y_eq_five_mod_seven (h : 7 ∣ y^2 - y + 2) (p : y % 7 = 5) : false :=
+begin
+have t := y_mod_seven 5 p,
+cases t with k hk,
+rw hk at h,
+ring_nf at h,
+have c : (22:ℤ) = 7*3 + 1 := by linarith,
+rw c at h,
+have r : 7 ∣ ((49 * k + 63)*k + 7*3),
+{
+  use (7*k*k + 9*k + 3),
+  ring_nf,
+},
+rw ← add_assoc at h,
+rw dvd_add_right r at h,
+have j : (0:ℤ) < 1 := by linarith,
+have g := int.le_of_dvd j h,
+linarith,
+end
+
+lemma y_eq_six_mod_seven (h : 7 ∣ y^2 - y + 2) (p : y % 7 = 6) : false :=
+begin
+have t := y_mod_seven 6 p,
+cases t with k hk,
+rw hk at h,
+ring_nf at h,
+have c : (32:ℤ) = 7*4 + 4 := by linarith,
+rw c at h,
+have r : 7 ∣ ((49 * k + 77)*k + 7*4),
+{
+ use (7*k*k + 11*k + 4),
+ ring_nf,
+},
+rw ← add_assoc at h,
+rw dvd_add_right r at h,
+have j : (0:ℤ) < 4 := by linarith,
+have g := int.le_of_dvd j h,
+linarith,
+end
+
+
 lemma seven_dvd_pol (h : 7 ∣ y^2 - y + 2) : y % 7 = 4 :=
 begin
-sorry,
+have : (7:ℤ) ≠ 0 := by linarith,
+have g : 0 ≤  (7:ℤ)  := by linarith,
+have k := int.mod_lt y this,
+have j := int.mod_nonneg y this,
+rw  ← abs_eq_self at g,
+rw g at k,
+interval_cases using j k,
+{
+  exfalso,
+  exact y_eq_zero_mod_seven h h_1,
+},
+
+exfalso,
+exact y_eq_one_mod_seven h h_1,
+
+exfalso,
+exact y_eq_two_mod_seven h h_1,
+
+exfalso,
+exact y_eq_three_mod_seven h h_1,
+
+exact h_1,
+
+exfalso,
+exact y_eq_five_mod_seven h h_1,
+
+exfalso,
+exact y_eq_six_mod_seven h h_1,
 end
 
 
