@@ -134,6 +134,7 @@ end
 -- Using the fact that d divides y-α
 lemma nd_dvd_pol : Norm d ∣ y^2 - y + 2 :=
 begin
+
 sorry,
 end
 
