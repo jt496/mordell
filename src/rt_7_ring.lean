@@ -10,8 +10,8 @@ and represent them by their x- and y-coordinates.
 
 @[ext]
 structure ℤα : Type :=
-  (x : ℤ)
-  (y : ℤ)
+  (z : ℤ)
+  (w : ℤ)
 
 namespace ℤα 
 
@@ -38,19 +38,19 @@ TO DO : rewrite this using pattern matching.
 
 def repr (a : ℤα) : string :=
 begin
-  by_cases a.x=0,
+  by_cases a.z=0,
   {
-    by_cases a.y=0,
+    by_cases a.w=0,
     { exact "0" },
-    { exact a.y.repr ++ " * α" }
+    { exact a.w.repr ++ " * α" }
   },
   {
-    by_cases a.y=0,
-    { exact a.x.repr },
+    by_cases a.w=0,
+    { exact a.z.repr },
     {
-      by_cases a.y > 0,
-      { exact a.x.repr ++ " + " ++ a.y.repr ++ " * α" },
-      { exact a.x.repr ++ " - " ++ (-(a.y)).repr ++ " * α" }
+      by_cases a.w > 0,
+      { exact a.z.repr ++ " + " ++ a.w.repr ++ " * α" },
+      { exact a.z.repr ++ " - " ++ (-(a.w)).repr ++ " * α" }
     }
   }
 end
@@ -69,12 +69,12 @@ def zero : ℤα := ⟨0,0⟩
 def one : ℤα := ⟨1,0⟩
 def α : ℤα := ⟨0,1⟩
 def α_bar : ℤα := ⟨1,-1⟩
-def add : ℤα → ℤα → ℤα := λ a b, ⟨ a.x+b.x, a.y+b.y ⟩
-def neg : ℤα → ℤα := λ a, ⟨ -a.x, -a.y ⟩
+def add : ℤα → ℤα → ℤα := λ a b, ⟨ a.z+b.z, a.w+b.w ⟩
+def neg : ℤα → ℤα := λ a, ⟨ -a.z, -a.w ⟩
 
 /--Using the fact that α^2 = α - 2, we obtain the rule for multiplication-/
 
-def mul : ℤα → ℤα → ℤα := λ a b, ⟨ a.x*b.x - 2*a.y*b.y, a.x*b.y + a.y*b.x + a.y*b.y ⟩
+def mul : ℤα → ℤα → ℤα := λ a b, ⟨ a.z*b.z - 2*a.w*b.w, a.z*b.w + a.w*b.z + a.w*b.w ⟩
 
 variables a b c : ℤα  
 
@@ -233,7 +233,7 @@ begin
 end
 
 noncomputable
-def to_ℂ : ℤα → ℂ := λ a, a.x + a.y * complex_α 
+def to_ℂ : ℤα → ℂ := λ a, a.z + a.w * complex_α 
 
 lemma my_map_one : to_ℂ one = 1 :=
 begin
@@ -299,9 +299,9 @@ begin
 end
 
 lemma re_of_coe :
-  (a:ℂ).re = a.x + a.y/2 :=
+  (a:ℂ).re = a.z + a.w/2 :=
 begin
-  change (to_ℂ a).re = a.x + a.y/2,
+  change (to_ℂ a).re = a.z + a.w/2,
   unfold to_ℂ,
   unfold complex_α,
   simp only [add_re, int_cast_re, mul_re, int_cast_im, zero_mul, tsub_zero],
@@ -309,9 +309,9 @@ begin
 end
 
 lemma im_of_coe :
-  (a:ℂ).im = a.y * rt_7/2 :=
+  (a:ℂ).im = a.w * rt_7/2 :=
 begin
-  change (to_ℂ a).im = a.y * rt_7/2,
+  change (to_ℂ a).im = a.w * rt_7/2,
   unfold to_ℂ,
   unfold complex_α,
   simp only [add_im, int_cast_im, mul_im, int_cast_re, zero_mul, add_zero, zero_add],
@@ -319,7 +319,7 @@ begin
 end
 
 lemma y_from_coe :
-  (a.y : ℝ) = 2*rt_7⁻¹ * (a:ℂ).im :=
+  (a.w : ℝ) = 2*rt_7⁻¹ * (a:ℂ).im :=
 begin
   cases a with x y,
   simp only [coe_of_mk],
@@ -330,7 +330,7 @@ begin
 end
 
 lemma x_from_coe :
-  (a.x :ℝ) = (a:ℂ).re - rt_7⁻¹ * (a:ℂ).im:=
+  (a.z :ℝ) = (a:ℂ).re - rt_7⁻¹ * (a:ℂ).im:=
 begin
   cases a with x y,
   simp only [coe_of_mk],
@@ -349,13 +349,13 @@ begin
     intro h,
     ext,
     {
-      have : (z.x : ℝ) = 0,
+      have : (z.z : ℝ) = 0,
       rw [x_from_coe,h],
       norm_num,
       exact_mod_cast this,
     },
     {
-      have : (z.y : ℝ) = 0,
+      have : (z.w : ℝ) = 0,
       rw [y_from_coe,h],
       norm_num,
       exact_mod_cast this,
@@ -393,7 +393,7 @@ This is the `ℤ`-valued norm of this type of quadratic integer.
 -/
 
 def Norm : ℤα → ℤ :=
-  λ z, z.x^2 + z.x * z.y  + 2*z.y^2
+  λ z, z.z^2 + z.z * z.w  + 2*z.w^2
 
 lemma norm_sq_coe :
   norm_sq a = (Norm a : ℝ)  :=
@@ -487,8 +487,8 @@ noncomputable
 def nearest_ℤα ( z : ℂ ) :  ℤα :=
   let y := round ( 2*rt_7⁻¹ * z.im) in
   {
-    y := y,
-    x := round (z.re - 2⁻¹ * y)
+    w := y,
+    z := round (z.re - 2⁻¹ * y)
   }
 
 lemma self_sub_round_sq ( x : ℝ ) :
