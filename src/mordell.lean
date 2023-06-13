@@ -13,9 +13,7 @@ import
   data.int.modeq
   algebra.ring.divisibility
   data.int.dvd.pow
-
-
-  
+ 
 
 namespace ℤα
 variables (a b : ℤα)
@@ -23,16 +21,16 @@ variables (a b : ℤα)
 #eval (⟨1,2⟩: ℤα)
 #print instances  euclidean_domain
 
-open complex
-
 open euclidean_domain
 
 section mordell
 parameters { x y : ℤ } {sol: x^3 = y^2 - y + 2}
 
+--Note that we have rewritten a.x and a.y for (a : ℤα) to a.z and a.w
+--in rt_7_ring, to avoid confusion and potential clashes with x and y here.
+
 instance : is_principal_ideal_ring ℤα := infer_instance
 #print instances is_principal_ideal_ring
-
 #print instances normalized_gcd_monoid
 
 noncomputable
