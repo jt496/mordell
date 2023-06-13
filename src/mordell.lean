@@ -12,6 +12,7 @@ import
   data.int.order.basic
   data.int.modeq
   algebra.ring.divisibility
+  data.int.dvd.pow
 
 
   
@@ -27,7 +28,7 @@ open complex
 open euclidean_domain
 
 section mordell
-parameters { x y : ℤ } {sol : x^3 = y^2 - y + 2}
+parameters { x y : ℤ } {sol: x^3 = y^2 - y + 2}
 
 instance : is_principal_ideal_ring ℤα := infer_instance
 #print instances is_principal_ideal_ring
@@ -179,15 +180,7 @@ apply norm_divides,
 exact gcd_dvd_left (y - α) (y - α_bar),
 end
 
-lemma sev_dvd_x_cubed (h : 7 ∣ x^3) : 7 ∣ x :=
-begin
---suprising?
-have p := int.prime.dvd_pow (seven_prime) (h),
-have r : (7:ℤ) ∣ (x.nat_abs:ℤ) := by exact_mod_cast p,
-rw int.dvd_nat_abs at r,
-exact r,
-end
-
+-- assuming N(d) = 7
 -- find mathlib lemma for y % 7 = 4 → ∃k, y = 7k+4
 -- use interval_cases and the above lemmas
 lemma y_mod_seven (s:ℤ) (h : y % 7 = s) : ∃(k:ℤ), y = 7*k + s :=
@@ -311,8 +304,12 @@ linarith,
 end
 
 
-lemma seven_dvd_pol (h : 7 ∣ y^2 - y + 2) : y % 7 = 4 :=
+lemma seven_dvd_pol (mn : Norm d = 7) : y % 7 = 4 :=
 begin
+have h : 7 ∣ y^2 - y + 2, {
+  rw ← mn,
+  exact nd_dvd_pol,
+},
 have : (7:ℤ) ≠ 0 := by linarith,
 have g : 0 ≤  (7:ℤ)  := by linarith,
 have k := int.mod_lt y this,
@@ -343,7 +340,71 @@ exfalso,
 exact y_eq_six_mod_seven h h_1,
 end
 
+lemma stuff_bro (h : Norm d = 7) : 7 ∣ x^3 :=
+begin
+have h : 7 ∣ y^2 - y + 2, {
+  rw ← h,
+  exact nd_dvd_pol,
+},
+sorry,
+end
 
+lemma sev_dvd_x_cubed (h : 7 ∣ x^3) : 7 ∣ x :=
+begin
+--suprising?
+have p := int.prime.dvd_pow' (seven_prime) (h),
+exact_mod_cast p,
+end
+
+lemma seven_sq_dvd (h : 7 ∣ x) : (7^2 ∣ x^3) :=
+begin
+have p := pow_dvd_pow_of_dvd h 3,
+cases p with f hf,
+use 7*f,
+linarith,
+end
+
+lemma seven_sq_dvd_sol (h : Norm d = 7) : (7^2 ∣ x^3) :=
+begin
+apply seven_sq_dvd,
+apply sev_dvd_x_cubed,
+apply stuff_bro,
+exact h,
+end
+
+lemma seven_sq_negdvd (h : y % 7 = 4) (p : 7^2 ∣ y^2 - y +2) : false:=
+begin
+have q := y_mod_seven 4 h,
+cases q with r hr,
+rw hr at p,
+ring_nf at p,
+have g : 49 ∣ ((49 * r + 49)*r),
+{
+  use (r*r + r),
+  ring_nf,
+},
+rw dvd_add_right g at p,
+have j : (0:ℤ) < 14 := by linarith,
+have t := int.le_of_dvd j p,
+linarith,
+end
+
+lemma seven_sq_negdvd_full (h : Norm d = 7) (p : 7^2 ∣ y^2 - y + 2) : false:=
+begin
+have q := seven_dvd_pol h,
+exact seven_sq_negdvd q p,
+end
+
+lemma nd_eq_one : Norm d = 1 :=
+begin
+have h := nd_one_or_seven,
+cases h with t f,
+exact t,
+exfalso,
+have lick := seven_sq_dvd_sol f,
+exact seven_sq_negdvd_full f lick,
+sorry,
+end
 
 lemma unit_if_norm_one (a : ℤα) : is_unit a → nat_Norm a = 1 :=
 begin
@@ -372,9 +433,8 @@ have r : a ≠ 0 := by finish,
 exact sq_pos_of_ne_zero a r,
 end
 
-lemma units_are {a:ℤα} (h : is_unit a): a = 1 ∨ a = -1 := 
+lemma units_are {a:ℤα} (k : nat_Norm a = 1): a = 1 ∨ a = -1 := 
 begin
-have k := unit_if_norm_one a h,
 have q : Norm a = 1, {
   rw equiv_norms,
   exact_mod_cast k,
@@ -392,7 +452,7 @@ cases c with wc lc,{
 have tt : a.y = 0 := pow_eq_zero wc,
 rw tt at t,
 ring_nf at t,
-clear h k r q hb hbb wc,
+clear k r q hb hbb wc,
 have h := sq_eq_one_iff.mp t,
 cases h,
 left,
@@ -406,6 +466,21 @@ exact tt,
 },
 exfalso,
 linarith,
+end
+
+lemma unit_iff_norm_one (a : ℤα) : is_unit a ↔ nat_Norm a = 1 :=
+begin
+split,
+exact unit_if_norm_one a,
+intro h,
+have p := units_are h,
+cases p with ha hb,
+use 1,
+symmetry,
+exact ha,
+use -1,
+symmetry,
+exact hb,
 end
 
 --gcd_is_unit_iff is a useful theorem
