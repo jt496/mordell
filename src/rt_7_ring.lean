@@ -177,9 +177,63 @@ instance is_ring : comm_ring ℤα :=
   mul_one := my_mul_one,
   left_distrib := my_left_distrib,
   right_distrib := my_right_distrib,
-  mul_comm := my_mul_comm
+  mul_comm := my_mul_comm,
+  zsmul := λ n a, ⟨n*a.z, n*a.w⟩,
+  zsmul_zero' := begin
+  intro a,
+  rw zero_mul,
+  rw zero_mul,
+  rw ← zero,
+  refl,
+  end,
+  zsmul_succ' := begin
+  intros n a,
+  ext,
+  
+  sorry,
+  end,
+  zsmul_neg' := begin
+   sorry, 
+   end,
+  
 }
 #eval α^3
+
+-- def R : comm_ring ℤα := { add := _,
+--   add_assoc := _,
+--   zero := _,
+--   zero_add := _,
+--   add_zero := _,
+--   nsmul := _,
+--   nsmul_zero' := _,
+--   nsmul_succ' := _,
+--   neg := _,
+--   sub := _,
+--   sub_eq_add_neg := _,
+--   zsmul := λ n a, ⟨n*a.z, n*a.w⟩,
+--   zsmul_zero' := _,
+--   zsmul_succ' := _,
+--   zsmul_neg' := _,
+--   add_left_neg := _,
+--   add_comm := _,
+--   int_cast := _,
+--   nat_cast := _,
+--   one := _,
+--   nat_cast_zero := _,
+--   nat_cast_succ := _,
+--   int_cast_of_nat := _,
+--   int_cast_neg_succ_of_nat := _,
+--   mul := _,
+--   mul_assoc := _,
+--   one_mul := _,
+--   mul_one := _,
+--   npow := _,
+--   npow_zero' := _,
+--   npow_succ' := _,
+--   left_distrib := _,
+--   right_distrib := _,
+--   mul_comm := _ }
+
 
 open complex int
 

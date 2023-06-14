@@ -13,7 +13,7 @@ import
   data.int.modeq
   algebra.ring.divisibility
   data.int.dvd.pow
- 
+  data.nat.prime_norm_num
 
 namespace ℤα
 variables (a b : ℤα)
@@ -143,10 +143,9 @@ rw equiv_norms at h,
 exact_mod_cast h,
 end
 
---There's definitely an easy way to do this...
 lemma seven_prime : nat.prime 7 :=
 begin
-sorry,
+norm_num,
 end
 
 
