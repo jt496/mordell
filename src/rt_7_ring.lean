@@ -3,6 +3,8 @@ import
   data.complex.basic
   algebra.euclidean_domain.basic
 
+open_locale classical
+
 /--We will be considering quadratic integers of the form `x+y*α`, where `α=(1+√-7)/2`
 and `x y : ℤ`. We shall write `ℤα` for the Type of these integers,
 and represent them by their x- and y-coordinates.
@@ -19,17 +21,20 @@ namespace ℤα
 We give lean a method for checking whether two such integers are equal.
 -/
 
-instance dec_eq : decidable_eq ℤα := λ a b,
-begin
-  cases a with r s,
-  cases b with t u,
-  have : decidable (r=t ∧ s=u),
-  {
-    exact and.decidable,
-  },
-  apply decidable_of_decidable_of_iff this,
-  tidy,
-end
+noncomputable
+instance dec_eq : decidable_eq ℤα := infer_instance
+
+-- λ a b,
+-- begin
+--   cases a with r s,
+--   cases b with t u,
+--   have : decidable (r=t ∧ s=u),
+--   {
+--     exact and.decidable,
+--   },
+--   apply decidable_of_decidable_of_iff this,
+--   tidy,
+-- end
 
 /--
 We give lean a way of displaying elements of `ℤα` using the command `#eval`.
@@ -782,26 +787,30 @@ end
 
 noncomputable
 instance euclidean_ℤα : euclidean_domain ℤα :=
-{ add := add,
-  zero := ⟨0,0⟩,
-  zero_add := zero_add,
-  add_zero := add_zero,
-  add_assoc := add_assoc,
-  neg := neg,
-  add_left_neg := add_left_neg,
-  add_comm := add_comm,
-  one := ⟨1,0⟩,
-  mul := mul,
-  mul_assoc := mul_assoc,
-  one_mul := one_mul,
-  mul_one := mul_one,
-  left_distrib := left_distrib,
-  right_distrib := right_distrib,
-  mul_comm := mul_comm,
+{
+--   add := add,
+--   zero := ⟨0,0⟩,
+--   zero_add := zero_add,
+--   add_zero := add_zero,
+--   add_assoc := add_assoc,
+--   neg := neg,
+--   add_left_neg := add_left_neg,
+--   add_comm := add_comm,
+--   one := ⟨1,0⟩,
+--   mul := mul,
+--   mul_assoc := mul_assoc,
+--   one_mul := one_mul,
+--   mul_one := mul_one,
+--   left_distrib := left_distrib,
+--   right_distrib := right_distrib,
+--   mul_comm := mul_comm,
   exists_pair_ne := begin
     use 0,
     use 1,
-    dec_trivial,
+    intro h,
+    rw ext_iff at h,
+    cases h with h1 h2,
+    cases h1,
   end,
   quotient := div,
   quotient_zero := my_quotient_zero,

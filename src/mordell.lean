@@ -15,6 +15,8 @@ import
   data.int.dvd.pow
   data.nat.prime_norm_num
 
+open_locale classical
+
 namespace ℤα
 variables (a b : ℤα)
 #check a+b
@@ -31,7 +33,8 @@ parameters { x y : ℤ } (sol: x^3 = y^2 - y + 2)
 
 instance : is_principal_ideal_ring ℤα := infer_instance
 #print instances is_principal_ideal_ring
-#print instances normalized_gcd_monoid
+instance : gcd_monoid ℤα := infer_instance
+#print instances gcd_monoid
 --#print instances is_domain
 
 noncomputable
@@ -528,25 +531,17 @@ end
 
 --Finally we can conclude that since N(d)=1, d must be a unit,
 --and hence the factors are coprime.
+include sol
 lemma factors_coprime : is_coprime ((y:ℤα)-α) ((y:ℤα)-α_bar) :=
 begin
---Update, now it's not working right at the beginning??
---is it using different versions of is_coprime?
---Perhaps something to do with type class inference not working.
  rw ← euclidean_domain.gcd_is_unit_iff,
  rw unit_iff_norm_one,
- have k : d = gcd ((y:ℤα)-α) ((y:ℤα)-α_bar) := by refl,
+ have k : d = euclidean_domain.gcd ((y:ℤα)-α) ((y:ℤα)-α_bar) := by refl,
  rw ← k,
- --The error used to pop up here before zsmul was added.
- exact nd_eq_one,
-sorry,
+ exact nd_eq_one sol,
 end
 
---Attempting to start the next step, using the descent lemma from
---mathlib, but we ran into issues. I think we need to get the parameters
---and sol working first.
-include sol
-lemma descent : ∃(k : ℤα), associated ((y:ℤα)-α) (k^3) :=
+lemma descent : ∃(k : ℤα), associated (k^3) ((y:ℤα)-α) :=
 begin
 have h : ((y:ℤα)-α)*(y-α_bar) = x^3,{
 rw ← my_factorization,
@@ -556,8 +551,7 @@ ext,
 exact sol,
 refl,
 },
---exact exists_associated_pow_of_mul_eq_pow' factors_coprime h,
-sorry, 
+exact exists_associated_pow_of_mul_eq_pow' (factors_coprime sol) h,
 end
 omit sol
 
