@@ -12,6 +12,7 @@ import
   algebra.ring.divisibility
   data.nat.prime_norm_num
   algebra.gcd_monoid.basic
+  algebra.group.units
 
 open_locale classical
 
@@ -21,17 +22,30 @@ variables (a b : ℤα)
 #eval (⟨1,2⟩: ℤα)
 #print instances  euclidean_domain
 
---open euclidean_domain
-
 section mordell
 parameters { x y : ℤ } (sol: x^3 = y^2 - y + 2)
 
 --Note that we have rewritten a.x and a.y for (a : ℤα) to a.z and a.w
 --in rt_7_ring, to avoid confusion and potential clashes with x and y here.
 
+noncomputable
+instance : gcd_monoid  ℤα:=
+{ gcd := λ a b, euclidean_domain.gcd a b,
+  lcm := λ a b, euclidean_domain.lcm a b,
+  gcd_dvd_left := λ a b, euclidean_domain.gcd_dvd_left a b,
+  gcd_dvd_right := λ a b, euclidean_domain.gcd_dvd_right a b,
+  dvd_gcd := λ  a b c hac hab, euclidean_domain.dvd_gcd hac hab,
+  gcd_mul_lcm := begin
+    intros a b,
+    have h := euclidean_domain.gcd_mul_lcm a b,
+    use 1,
+    simp,
+  end,
+  lcm_zero_left := λ a, euclidean_domain.lcm_zero_left a,
+  lcm_zero_right := λ a, euclidean_domain.lcm_zero_right a }
+
 instance : is_principal_ideal_ring ℤα := infer_instance
 #print instances is_principal_ideal_ring
-instance : gcd_monoid ℤα := infer_instance
 #print instances gcd_monoid
 --#print instances is_domain
 
@@ -500,6 +514,14 @@ exfalso,
 linarith,
 end
 
+lemma units_is_bruv (a:ℤαˣ) : (a:ℤα) = 1 ∨ (a:ℤα) = -1 :=
+begin
+have q := units.is_unit a,
+have p := unit_if_norm_one a q,
+have l := units_are p,
+exact l,
+end
+
 --Since we now now what the units are,
 --we can write the iff version of the if proof above.
 --We also switch from nat_Norm to norm.
@@ -547,9 +569,81 @@ refl,
 },
 exact exists_associated_pow_of_mul_eq_pow' (factors_coprime sol) h,
 end
+
+
+lemma descent_pro : ∃(k : ℤα), k^3 = ((y:ℤα)-α) :=
+begin
+have h := descent sol,
+cases h with b hb,
+unfold associated at hb,
+cases hb with c hc,
+have p := units_is_bruv c, 
+cases p with p1 p2,{
+rw p1 at hc,
+rw mul_one at hc,
+use b,
+exact hc,
+},
+rw p2 at hc,
+use -b,
+simp,
+simp at hc,
+exact hc,
+end
+
 omit sol
+lemma alpha_rw (a : ℤ) (b : ℤ) : (a:ℤα) + b*α = (⟨a, b⟩:ℤα) :=
+begin
+change (⟨a + (b*0 - 2*0*1), 0 + (b*1 + 0*0 + 0*1)⟩:ℤα) = (⟨a, b⟩:ℤα),
+simp,
+end
+include sol
+
+lemma expanding : ∃(k:ℤα), (y:ℤα)-α = k.z^3 - 6*k.z*k.w^2 - 2*k.w^3 + (3*k.z^2*k.w + 3*k.z*k.w^2 - k.w^3)*α :=
+begin
+have h := descent_pro sol,
+cases h with k hk,
+use k,
+rw ← hk,
+have p : k = k.z + k.w*α, {
+change k = (⟨k.z + (k.w*0 - 2*0*1), 0 + (k.w*1 + 0*0 + 0*1)⟩:ℤα),
+simp,
+ext,
+simp,
+},
+nth_rewrite 0 p,
+ring_nf,
+end
+
+omit sol
+lemma neg_coe (a:ℤ) : -(a:ℤα) = (-a:ℤα) := 
+begin
+simp,
+end
+include sol
+
+lemma separating : ∃(k:ℤα), y = k.z^3 - 6*k.z*k.w^2 - 2*k.w^3 ∧ -1 = 3*k.z^2*k.w + 3*k.z*k.w^2 - k.w^3 :=
+begin
+have h := expanding sol,
+cases h with k hk,
+use k,
+nth_rewrite 0 ← one_mul α at hk,
+have pp := alpha_rw y (-1),
+change (y:ℤα) - 1 * α = (⟨y, -1⟩:ℤα) at pp,
+rw pp at hk,
+norm_cast at hk,
+have ppp := alpha_rw (k.z ^ 3 - 6 * k.z * k.w ^ 2 - 2 * k.w ^ 3) (3 * k.z ^ 2 * k.w + 3 * k.z * k.w ^ 2 - k.w ^ 3),
+rw ppp at hk,
+clear pp ppp,
+simp at hk,
+split,
+exact hk.1,
+exact hk.2,
+end
 
 
+
+omit sol
 
 end mordell
 end ℤα
