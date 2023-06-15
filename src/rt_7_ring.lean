@@ -180,60 +180,60 @@ instance is_ring : comm_ring ℤα :=
   mul_comm := my_mul_comm,
   zsmul := λ n a, ⟨n*a.z, n*a.w⟩,
   zsmul_zero' := begin
-  intro a,
-  rw zero_mul,
-  rw zero_mul,
-  rw ← zero,
-  refl,
+    intro a,
+    rw zero_mul,
+    rw zero_mul,
+    rw ← zero,
+    refl,
   end,
   zsmul_succ' := begin
-  intros n a,
-  ext,
-  
-  sorry,
+    intros n a,
+    change (⟨int.of_nat n.succ*a.z, int.of_nat n.succ*a.w⟩:ℤα) = (⟨a.z + int.of_nat n*a.z, a.w + int.of_nat n*a.w⟩:ℤα),
+    norm_num,
+    split,
+    linarith,
+    linarith,
   end,
   zsmul_neg' := begin
-   sorry, 
-   end,
-  
+    intros n a,
+    simp,
+    change (⟨int.neg_succ_of_nat n*a.z, int.neg_succ_of_nat n*a.w⟩:ℤα) = (⟨-(int.of_nat n.succ*a.z), -(int.of_nat n.succ*a.w)⟩:ℤα),
+    simp,
+    split,
+    rw int.neg_succ_of_nat_coe,
+    rw int.neg_mul_eq_neg_mul_symm,
+    rw int.coe_nat_add,
+    rwa int.coe_nat_one,
+    rw int.neg_succ_of_nat_coe,
+    rw int.neg_mul_eq_neg_mul_symm,
+    rw int.coe_nat_add,
+    rwa int.coe_nat_one,
+    end, 
+
+  int_cast := λ a, ⟨a, 0⟩,
+  nat_cast := λ a, ⟨a, 0⟩,
+
+  nat_cast_zero := begin
+    rw int.coe_nat_zero,
+    refl,
+  end,
+  nat_cast_succ := begin
+    intro n,
+    change (⟨int.of_nat (n+1), 0⟩:ℤα) = (⟨int.of_nat n + 1, 0⟩:ℤα),
+    simp,
+  end,
+  int_cast_of_nat := begin
+  intro n,
+  refl,
+  end,
+  int_cast_neg_succ_of_nat := begin
+  intro n,
+  refl,
+  end,
 }
 #eval α^3
 
--- def R : comm_ring ℤα := { add := _,
---   add_assoc := _,
---   zero := _,
---   zero_add := _,
---   add_zero := _,
---   nsmul := _,
---   nsmul_zero' := _,
---   nsmul_succ' := _,
---   neg := _,
---   sub := _,
---   sub_eq_add_neg := _,
---   zsmul := λ n a, ⟨n*a.z, n*a.w⟩,
---   zsmul_zero' := _,
---   zsmul_succ' := _,
---   zsmul_neg' := _,
---   add_left_neg := _,
---   add_comm := _,
---   int_cast := _,
---   nat_cast := _,
---   one := _,
---   nat_cast_zero := _,
---   nat_cast_succ := _,
---   int_cast_of_nat := _,
---   int_cast_neg_succ_of_nat := _,
---   mul := _,
---   mul_assoc := _,
---   one_mul := _,
---   mul_one := _,
---   npow := _,
---   npow_zero' := _,
---   npow_succ' := _,
---   left_distrib := _,
---   right_distrib := _,
---   mul_comm := _ }
-
+-- def R : comm_ring ℤα := {!}
 
 open complex int
 

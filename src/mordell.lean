@@ -21,10 +21,10 @@ variables (a b : ℤα)
 #eval (⟨1,2⟩: ℤα)
 #print instances  euclidean_domain
 
-open euclidean_domain
+--open euclidean_domain
 
 section mordell
-parameters { x y : ℤ } {sol: x^3 = y^2 - y + 2}
+parameters { x y : ℤ } (sol: x^3 = y^2 - y + 2)
 
 --Note that we have rewritten a.x and a.y for (a : ℤα) to a.z and a.w
 --in rt_7_ring, to avoid confusion and potential clashes with x and y here.
@@ -83,11 +83,10 @@ lemma conj_α: star_ring_end ℂ complex_α = α_bar :=
   end
 
 -- don't know how to prove this, maybe we will need a proper coercion?
+-- (There is now a proper coercion in rt_7_ring)
 lemma coe_from_ints (a:ℤ) : (a:ℤα) = (⟨a, 0⟩:ℤα) :=
 begin
-unfold_coes,
-
-sorry,
+refl,
 end
 
 --Shows that the factorization of y^2-y+2 is valid.
@@ -108,8 +107,8 @@ lemma my_factorization: (y:ℤα)^2-y+2 = (y-α)*(y-α_bar):=
 lemma d_dvd_sqrt_seven_i : d ∣ α - α_bar :=
 begin
 change ∃(k:ℤα), α - α_bar = d*k,
-have h : d ∣ y - α := gcd_dvd_left (y - α) (y - α_bar),
-have q : d ∣ y - α_bar := gcd_dvd_right (y - α) (y - α_bar),
+have h : d ∣ y - α := euclidean_domain.gcd_dvd_left (y - α) (y - α_bar),
+have q : d ∣ y - α_bar := euclidean_domain.gcd_dvd_right (y - α) (y - α_bar),
 cases h with j hj,
 cases q with g hg,
 use (g - j),
@@ -154,7 +153,7 @@ begin
 exact nat.prime.eq_one_or_self_of_dvd (seven_prime) (nat_Norm d) (nat_nd_dvd_seven),
 end
 
---After arriving at this result, we now show that N(d)=7 leads to a contradiction.
+--After arriving at the result below, we then show that N(d)=7 leads to a contradiction.
 lemma nd_one_or_seven : Norm d = 1 ∨ Norm d = 7 := begin
 have h := nat_nd_one_or_seven,
 cases h with p q,
@@ -170,14 +169,8 @@ end
 lemma norm_y_minus_α : Norm (y-α) = y^2 - y + 2 :=
 begin
 have h : (y:ℤα) - α = (⟨y,-1⟩:ℤα), {
-rw coe_from_ints,
-unfold α,
-change add (⟨y, 0⟩:ℤα) (⟨0, 1⟩:ℤα).neg = {z := y, w := -1},
-have r : neg (⟨0, 1⟩:ℤα) = (⟨0,-1⟩:ℤα) := by refl,
-rw r,
-have p : add (⟨y, 0⟩:ℤα) (⟨0,-1⟩:ℤα) = (⟨y+0,0+(-1)⟩:ℤα) := by refl,
-rw p,
-norm_num,
+  change (⟨y+0,-1⟩:ℤα) = (⟨y,-1⟩:ℤα),
+  rw add_zero,
 },
 rw h,
 unfold Norm,
@@ -193,7 +186,7 @@ lemma nd_dvd_pol : Norm d ∣ y^2 - y + 2 :=
 begin
 rw ← norm_y_minus_α,
 apply norm_divides,
-exact gcd_dvd_left (y - α) (y - α_bar),
+exact euclidean_domain.gcd_dvd_left (y - α) (y - α_bar),
 end
 
 --The usual maths definition for y % 7 = s
@@ -322,7 +315,7 @@ end
 
 --------------------------------------------
 
---Putting the previous lemmas together, we are now assuming N(d)=7.
+--Now we put the previous lemmas together. (We are assuming N(d)=7.)
 lemma seven_dvd_pol (mn : Norm d = 7) : y % 7 = 4 :=
 begin
 have h : 7 ∣ y^2 - y + 2, {
@@ -380,6 +373,7 @@ exact seven_sq_negdvd q p,
 end
 
 --Now we start working towards the other side of the contradiction.
+include sol
 lemma stuff_bro (h : Norm d = 7) : 7 ∣ x^3 :=
 begin
 have p : 7 ∣ y^2 - y + 2, {
@@ -387,9 +381,9 @@ have p : 7 ∣ y^2 - y + 2, {
   exact nd_dvd_pol,
 },
 --This should be a direct application of sol, but Include sol causes problems.
-sorry,
--- rw sol,
--- exact h,
+
+rw sol,
+exact p,
 end
 
 --Since 7 is prime, it must also divide x.
@@ -410,17 +404,17 @@ end
 
 --Finally we use that x^3 = y^2 - y + 2 and tie this result back to
 --our assumption that N(d) = 7. We have the other side of the contradiction.
+
 lemma seven_sq_dvd_sol (h : Norm d = 7) : (7^2 ∣ y^2 - y + 2) :=
 begin
 --The below code works if we replace y^2 - y + 2 by x^3 in the goal,
 --so we just need to get sol working. Then we will be able to rw ← sol
 --and go from there.
-sorry,
--- apply seven_sq_dvd,
--- apply sev_dvd_x_cubed,
--- apply stuff_bro,
--- exact h,
--- exact y,
+rw ← sol,
+apply seven_sq_dvd sol,
+apply sev_dvd_x_cubed sol,
+apply stuff_bro sol,
+exact h,
 end
 
 --Shows by contradiction that N(d) must be 1.
@@ -430,9 +424,10 @@ have h := nd_one_or_seven,
 cases h with t f,
 exact t,
 exfalso,
-have b := seven_sq_dvd_sol f,
+have b := seven_sq_dvd_sol sol f,
 exact seven_sq_negdvd_full f b,
 end
+omit sol
 
 --If 'a' is a unit it must have norm 1
 lemma unit_if_norm_one (a : ℤα) : is_unit a → nat_Norm a = 1 :=
@@ -532,9 +527,10 @@ end
 
 --Finally we can conclude that since N(d)=1, d must be a unit,
 --and hence the factors are coprime.
-include sol
 lemma factors_coprime : is_coprime ((y:ℤα)-α) ((y:ℤα)-α_bar) :=
 begin
+--Update, now it's not working right at the beginning??
+--is it using different versions of is_coprime?
  rw ← euclidean_domain.gcd_is_unit_iff,
  rw unit_iff_norm_one,
  have k : d = gcd ((y:ℤα)-α) ((y:ℤα)-α_bar) := by refl,
@@ -547,16 +543,21 @@ end
 --Attempting to start the next step, using the descent lemma from
 --mathlib, but we ran into issues. I think we need to get the parameters
 --and sol working first.
+include sol
 lemma descent : ∃(k : ℤα), associated ((y:ℤα)-α) (k^3) :=
 begin
 have h : ((y:ℤα)-α)*(y-α_bar) = x^3,{
 rw ← my_factorization,
-sorry,
+symmetry,
+norm_cast,
+ext,
+exact sol,
+refl,
 },
 --exact exists_associated_pow_of_mul_eq_pow' factors_coprime h,
 sorry, 
 end
-
+omit sol
 
 end mordell
 end ℤα
