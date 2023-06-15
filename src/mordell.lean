@@ -9,11 +9,9 @@ import
   algebra.group.units
   data.nat.prime
   ring_theory.int.basic
-  data.int.order.basic
-  data.int.modeq
   algebra.ring.divisibility
-  data.int.dvd.pow
   data.nat.prime_norm_num
+  algebra.gcd_monoid
 
 open_locale classical
 
@@ -536,8 +534,6 @@ lemma factors_coprime : is_coprime ((y:ℤα)-α) ((y:ℤα)-α_bar) :=
 begin
  rw ← euclidean_domain.gcd_is_unit_iff,
  rw unit_iff_norm_one,
- have k : d = euclidean_domain.gcd ((y:ℤα)-α) ((y:ℤα)-α_bar) := by refl,
- rw ← k,
  exact nd_eq_one sol,
 end
 
