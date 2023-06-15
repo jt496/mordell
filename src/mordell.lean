@@ -11,7 +11,7 @@ import
   ring_theory.int.basic
   algebra.ring.divisibility
   data.nat.prime_norm_num
-  algebra.gcd_monoid
+  algebra.gcd_monoid.basic
 
 open_locale classical
 
@@ -382,8 +382,6 @@ have p : 7 ∣ y^2 - y + 2, {
   rw ← h,
   exact nd_dvd_pol,
 },
---This should be a direct application of sol, but Include sol causes problems.
-
 rw sol,
 exact p,
 end
