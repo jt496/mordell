@@ -158,8 +158,6 @@ begin
   split; ring,
 end
 
-/-- Making ℤα into a ring-/
-
 def zsmul : ℤ → ℤα → ℤα := λ n a, ⟨n*a.z, n*a.w⟩
 
 lemma my_zsmul_zero' : ∀ (a : ℤα), zsmul (0:ℤ)  a = (zero) :=
@@ -227,6 +225,7 @@ intro n,
 refl,
 end
 
+/-- Making ℤα into a ring-/
 
 instance is_ring : comm_ring ℤα :=
 {
@@ -246,6 +245,9 @@ instance is_ring : comm_ring ℤα :=
   left_distrib := my_left_distrib,
   right_distrib := my_right_distrib,
   mul_comm := my_mul_comm,
+
+  --If the below lemmas are commented out, suddenly lean can infer that
+  --ℤα is a PID again.
   zsmul := zsmul,
   zsmul_zero' := my_zsmul_zero',
   zsmul_succ' := my_zsmul_succ',
@@ -261,7 +263,7 @@ instance is_ring : comm_ring ℤα :=
 }
 #eval α^3
 
--- def R : comm_ring ℤα := {!}
+--def R : comm_ring ℤα := {!}
 
 open complex int
 

@@ -532,12 +532,12 @@ lemma factors_coprime : is_coprime ((y:ℤα)-α) ((y:ℤα)-α_bar) :=
 begin
 --Update, now it's not working right at the beginning??
 --is it using different versions of is_coprime?
-
+--Perhaps something to do with type class inference not working.
  rw ← euclidean_domain.gcd_is_unit_iff,
  rw unit_iff_norm_one,
  have k : d = gcd ((y:ℤα)-α) ((y:ℤα)-α_bar) := by refl,
  rw ← k,
- --why does this not work, they are exactly the same???
+ --The error used to pop up here before zsmul was added.
  exact nd_eq_one,
 sorry,
 end
