@@ -32,6 +32,7 @@ parameters { x y : ℤ } (sol: x^3 = y^2 - y + 2)
 instance : is_principal_ideal_ring ℤα := infer_instance
 #print instances is_principal_ideal_ring
 #print instances normalized_gcd_monoid
+--#print instances is_domain
 
 noncomputable
 def d := euclidean_domain.gcd ((y:ℤα)-α) ((y:ℤα)-α_bar)
@@ -531,6 +532,7 @@ lemma factors_coprime : is_coprime ((y:ℤα)-α) ((y:ℤα)-α_bar) :=
 begin
 --Update, now it's not working right at the beginning??
 --is it using different versions of is_coprime?
+
  rw ← euclidean_domain.gcd_is_unit_iff,
  rw unit_iff_norm_one,
  have k : d = gcd ((y:ℤα)-α) ((y:ℤα)-α_bar) := by refl,
@@ -558,6 +560,8 @@ refl,
 sorry, 
 end
 omit sol
+
+
 
 end mordell
 end ℤα

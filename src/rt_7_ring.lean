@@ -160,6 +160,74 @@ end
 
 /-- Making ℤα into a ring-/
 
+def zsmul : ℤ → ℤα → ℤα := λ n a, ⟨n*a.z, n*a.w⟩
+
+lemma my_zsmul_zero' : ∀ (a : ℤα), zsmul (0:ℤ)  a = (zero) :=
+begin
+intro a,
+unfold zsmul,
+rw zero_mul,
+rw zero_mul,
+rw ← zero,
+end
+
+lemma my_zsmul_succ' : ∀ (n : ℕ) (a : ℤα), zsmul (int.of_nat n.succ) a = a.add (zsmul (int.of_nat n) a) :=
+begin
+intros n a,
+change (⟨int.of_nat n.succ*a.z, int.of_nat n.succ*a.w⟩:ℤα) = (⟨a.z + int.of_nat n*a.z, a.w + int.of_nat n*a.w⟩:ℤα),
+norm_num,
+split,
+linarith,
+linarith,
+end
+
+lemma my_zsmul_neg' : ∀ (n : ℕ) (a : ℤα), zsmul -[1+ n] a = (zsmul ↑(n.succ) a).neg :=
+begin
+intros n a,
+simp,
+change (⟨int.neg_succ_of_nat n*a.z, int.neg_succ_of_nat n*a.w⟩:ℤα) = (⟨-(int.of_nat n.succ*a.z), -(int.of_nat n.succ*a.w)⟩:ℤα),
+simp,
+split,
+rw int.neg_succ_of_nat_coe,
+rw int.neg_mul_eq_neg_mul_symm,
+rw int.coe_nat_add,
+rwa int.coe_nat_one,
+rw int.neg_succ_of_nat_coe,
+rw int.neg_mul_eq_neg_mul_symm,
+rw int.coe_nat_add,
+rwa int.coe_nat_one,
+end
+
+def int_cast : ℤ → ℤα := λ a, ⟨a, 0⟩ 
+def nat_cast : ℕ → ℤα := λ a, ⟨a, 0⟩
+
+lemma my_nat_cast_zero : nat_cast 0 = zero :=
+begin
+unfold nat_cast,
+rw int.coe_nat_zero,
+refl,
+end
+
+lemma my_nat_cast_succ : ∀ (n : ℕ), nat_cast (n + 1) = (nat_cast n).add one :=
+begin
+intro n,
+change (⟨int.of_nat (n+1), 0⟩:ℤα) = (⟨int.of_nat n + 1, 0⟩:ℤα),
+simp,
+end
+
+lemma my_int_cast_of_nat : ∀ (n : ℕ), int_cast ↑n = nat_cast n :=
+begin
+intro n,
+refl,
+end
+
+lemma my_int_cast_neg_succ_of_nat : ∀ (n : ℕ), int_cast (-↑(n + 1)) = (nat_cast (n + 1)).neg :=
+begin
+intro n,
+refl,
+end
+
+
 instance is_ring : comm_ring ℤα :=
 {
   zero := zero,
@@ -178,58 +246,18 @@ instance is_ring : comm_ring ℤα :=
   left_distrib := my_left_distrib,
   right_distrib := my_right_distrib,
   mul_comm := my_mul_comm,
-  zsmul := λ n a, ⟨n*a.z, n*a.w⟩,
-  zsmul_zero' := begin
-    intro a,
-    rw zero_mul,
-    rw zero_mul,
-    rw ← zero,
-    refl,
-  end,
-  zsmul_succ' := begin
-    intros n a,
-    change (⟨int.of_nat n.succ*a.z, int.of_nat n.succ*a.w⟩:ℤα) = (⟨a.z + int.of_nat n*a.z, a.w + int.of_nat n*a.w⟩:ℤα),
-    norm_num,
-    split,
-    linarith,
-    linarith,
-  end,
-  zsmul_neg' := begin
-    intros n a,
-    simp,
-    change (⟨int.neg_succ_of_nat n*a.z, int.neg_succ_of_nat n*a.w⟩:ℤα) = (⟨-(int.of_nat n.succ*a.z), -(int.of_nat n.succ*a.w)⟩:ℤα),
-    simp,
-    split,
-    rw int.neg_succ_of_nat_coe,
-    rw int.neg_mul_eq_neg_mul_symm,
-    rw int.coe_nat_add,
-    rwa int.coe_nat_one,
-    rw int.neg_succ_of_nat_coe,
-    rw int.neg_mul_eq_neg_mul_symm,
-    rw int.coe_nat_add,
-    rwa int.coe_nat_one,
-    end, 
+  zsmul := zsmul,
+  zsmul_zero' := my_zsmul_zero',
+  zsmul_succ' := my_zsmul_succ',
+  zsmul_neg' := my_zsmul_neg',
 
-  int_cast := λ a, ⟨a, 0⟩,
-  nat_cast := λ a, ⟨a, 0⟩,
+  int_cast := int_cast,
+  nat_cast := nat_cast,
 
-  nat_cast_zero := begin
-    rw int.coe_nat_zero,
-    refl,
-  end,
-  nat_cast_succ := begin
-    intro n,
-    change (⟨int.of_nat (n+1), 0⟩:ℤα) = (⟨int.of_nat n + 1, 0⟩:ℤα),
-    simp,
-  end,
-  int_cast_of_nat := begin
-  intro n,
-  refl,
-  end,
-  int_cast_neg_succ_of_nat := begin
-  intro n,
-  refl,
-  end,
+  nat_cast_zero := my_nat_cast_zero,
+  nat_cast_succ := my_nat_cast_succ,
+  int_cast_of_nat := my_int_cast_of_nat,
+  int_cast_neg_succ_of_nat := my_int_cast_neg_succ_of_nat,
 }
 #eval α^3
 
