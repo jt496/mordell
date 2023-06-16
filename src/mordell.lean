@@ -591,13 +591,14 @@ simp,
 simp at hc,
 exact hc,
 end
-
 omit sol
+
 lemma alpha_rw (a : ℤ) (b : ℤ) : (a:ℤα) + b*α = (⟨a, b⟩:ℤα) :=
 begin
 change (⟨a + (b*0 - 2*0*1), 0 + (b*1 + 0*0 + 0*1)⟩:ℤα) = (⟨a, b⟩:ℤα),
 simp,
 end
+
 include sol
 
 lemma expanding : ∃(k:ℤα), (y:ℤα)-α = k.z^3 - 6*k.z*k.w^2 - 2*k.w^3 + (3*k.z^2*k.w + 3*k.z*k.w^2 - k.w^3)*α :=
@@ -698,36 +699,90 @@ linarith,
 end
 
 include sol
-lemma sol_kz_eq_zero (k:ℤα) (h : k.z = 0) (p : k.w = 1) (q : y = k.z^3 - 6*k.z*k.w^2 - 2*k.w^3) : y = -2 ∧ x = 2 :=
+lemma sol_kz_eq_zero (k:ℤα) (h : k.z = 0) (p : k.w = 1) (q : y = k.z^3 - 6*k.z*k.w^2 - 2*k.w^3) : x = 2 ∧ y = -2 :=
 begin
 rw h at q,
 rw p at q,
 norm_num at q,
-split,
-exact q,
+split,{
 rw q at sol,
 norm_num at sol,
 have gg : (8:ℤ) = 2^3 := by norm_num,
 rw gg at sol,
+
 sorry,
+},
+exact q,
 end
 
-lemma sol_kz_eq_neg_one (k:ℤα) (h : k.z = -1) (p : k.w = 1) (q : y = k.z^3 - 6*k.z*k.w^2 - 2*k.w^3) : y = 3 ∧ x = 2 :=
+lemma sol_kz_eq_neg_one (k:ℤα) (h : k.z = -1) (p : k.w = 1) (q : y = k.z^3 - 6*k.z*k.w^2 - 2*k.w^3) : x=2 ∧ y=3 :=
 begin
 rw h at q,
 rw p at q,
 norm_num at q,
-split,
-exact q,
+split,{
 rw q at sol,
 norm_num at sol,
 have gg : (8:ℤ) = 2^3 := by norm_num,
 rw gg at sol,
 sorry,
+},
+exact q,
+end
+
+
+lemma kw_eq_neg_one (k:ℤα) (h : k.w = -1) (j : -1 = 3 * k.z ^ 2 * k.w + 3 * k.z * k.w ^ 2 - k.w ^ 3) : false :=
+begin
+rw h at j,
+rw ← add_left_inj (1:ℤ) at j,
+ring_nf at j,
+have dumb : (-1:ℤ) ≠ 0 := by linarith,
+rw ← mul_right_inj' dumb at j,
+ring_nf at j,
+
+have c : (k.z ≤ -1 ∨ k.z = 0 ∨ k.z = 1 ∨ k.z ≥ 2),{
+by_contra p,
+rw not_or_distrib at p,
+rw not_or_distrib at p,
+rw not_or_distrib at p,
+cases p with p1 g1,
+cases g1 with p2 g2,
+cases g2 with p3 p4,
+nlinarith,
+},
+
+cases c,{
+nlinarith,
+},
+cases c,{
+rw c at j,
+linarith,
+},
+cases c,{
+rw c at j,
+linarith,
+},
+nlinarith,
+end
+
+
+theorem diophantine_eq : (x = 2 ∧ y = -2) ∨ (x = 2 ∧ y = 3) :=
+begin
+have h := separating sol,
+cases h with k hk,
+cases hk with a b,
+have p := divides_one_trick sol k b,
+cases p with p1 p2,
+have bam := kw_eq_one k p1 b,
+cases bam,
+left,
+exact sol_kz_eq_zero sol k bam p1 a,
+right,
+exact sol_kz_eq_neg_one sol k bam p1 a,
+exfalso,
+exact kw_eq_neg_one sol k p2 b,
 end
 omit sol
-
-
 
 end mordell
 end ℤα
