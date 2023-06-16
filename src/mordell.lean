@@ -13,6 +13,7 @@ import
   data.nat.prime_norm_num
   algebra.gcd_monoid.basic
   algebra.group.units
+  algebra.group.defs
 
 open_locale classical
 
@@ -641,9 +642,92 @@ exact hk.1,
 exact hk.2,
 end
 
-
+lemma divides_one_trick (k:ℤα) (h : -1 = 3*k.z^2*k.w + 3*k.z*k.w^2 - k.w^3) : k.w = 1 ∨ k.w = -1 :=
+begin
+have q : (-1:ℤ) ≠ 0 := by linarith,
+have p : k.w ∣ 1, {
+use -3 * k.z ^ 2 - 3 * k.z * k.w + k.w ^ 2,
+rw ← mul_right_inj' q,
+ring_nf,
+rw h,
+ring_nf,
+},
+have g : (0 ≤ k.w) ∨ (0 ≤ -k.w), 
+{
+  by_contra,
+  rw not_or_distrib at h,
+  cases h with f hf,
+  apply hf,
+  linarith,
+},
+cases g with t ht,
+have q := int.eq_one_of_dvd_one t p,
+left,
+exact q,
+rw ← neg_dvd at p,
+have l := int.eq_one_of_dvd_one ht p,
+right,
+rw ← mul_right_inj' q,
+simp,
+exact l,
+end
 
 omit sol
+
+lemma kw_eq_one (k:ℤα) (h : k.w = 1) (j : -1 = 3 * k.z ^ 2 * k.w + 3 * k.z * k.w ^ 2 - k.w ^ 3) : (k.z = 0 ∨ k.z = -1) :=
+begin
+rw h at j,
+simp at j,
+rw ← add_right_inj (1:ℤ) at j,
+simp at j,
+change 3*0 = 3 * k.z ^ 2 + 3 * k.z at j,
+rw ← mul_add 3 (k.z^2) (k.z) at j,
+have dumb : (3:ℤ) ≠ 0 := by linarith,
+rw mul_right_inj' dumb at j,
+have u : (k.z * 1) = k.z := by linarith,
+nth_rewrite 1 ← u at j,
+have t : k.z^2 = k.z*k.z := by linarith,
+rw t at j,
+rw ← mul_add k.z k.z 1 at j,
+simp at j,
+cases j,
+left,
+exact j,
+right,
+linarith,
+end
+
+include sol
+lemma sol_kz_eq_zero (k:ℤα) (h : k.z = 0) (p : k.w = 1) (q : y = k.z^3 - 6*k.z*k.w^2 - 2*k.w^3) : y = -2 ∧ x = 2 :=
+begin
+rw h at q,
+rw p at q,
+norm_num at q,
+split,
+exact q,
+rw q at sol,
+norm_num at sol,
+have gg : (8:ℤ) = 2^3 := by norm_num,
+rw gg at sol,
+sorry,
+end
+
+lemma sol_kz_eq_neg_one (k:ℤα) (h : k.z = -1) (p : k.w = 1) (q : y = k.z^3 - 6*k.z*k.w^2 - 2*k.w^3) : y = 3 ∧ x = 2 :=
+begin
+rw h at q,
+rw p at q,
+norm_num at q,
+split,
+exact q,
+rw q at sol,
+norm_num at sol,
+have gg : (8:ℤ) = 2^3 := by norm_num,
+rw gg at sol,
+sorry,
+end
+omit sol
+
+
 
 end mordell
 end ℤα
