@@ -17,6 +17,8 @@ import
 
 open_locale classical
 
+set_option profiler true
+
 namespace ℤα
 --variables (a b : ℤα)
 -- #check a+b
