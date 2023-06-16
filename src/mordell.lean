@@ -224,7 +224,7 @@ use (7*k*k + k),
 ring_nf,
 },
 rw dvd_add_right r at h,
-have j : (0:ℤ) < 2 := by linarith,
+have j : (0:ℤ) < 2 := by dec_trivial,
 have g := int.le_of_dvd j h,
 linarith,
 end
