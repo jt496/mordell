@@ -17,13 +17,11 @@ import
 
 open_locale classical
 
-set_option profiler true
-
 namespace ℤα
---variables (a b : ℤα)
--- #check a+b
--- #eval (⟨1,2⟩: ℤα)
--- #print instances  euclidean_domain
+variables (a b : ℤα)
+#check a+b
+#eval (⟨1,2⟩: ℤα)
+#print instances  euclidean_domain
 
 section mordell
 parameters { x y : ℤ } (sol: x^3 = y^2 - y + 2)
@@ -48,8 +46,8 @@ instance : gcd_monoid  ℤα:=
   lcm_zero_right := λ a, euclidean_domain.lcm_zero_right a }
 
 instance : is_principal_ideal_ring ℤα := infer_instance
--- #print instances is_principal_ideal_ring
--- #print instances gcd_monoid
+#print instances is_principal_ideal_ring
+#print instances gcd_monoid
 --#print instances is_domain
 
 noncomputable
@@ -61,6 +59,24 @@ of the two terms, we find that Norm d ∣ 7, and hence N(d) is 1 or 7.
 In the case where we assume N(d) = 7, we arrive at a contradiction of the form 
 7^2 ∣ y^2-y+2 and ¬(7^2 ∣ y^2-y+2). Hence N(d) = 1 and d is a unit.
 -/
+
+-- Showing that conj complex_α is in fact α_bar. Not in use currently.
+lemma conj_α: star_ring_end ℂ complex_α = α_bar :=
+  begin
+  unfold α_bar complex_α,
+  have h : star_ring_end ℂ ⟨1/2, (rt_7/2)⟩ = ⟨1/2, -rt_7/2⟩ := by ring_nf,
+  rw h,
+  clear h,
+  have p := re_of_coe,
+  have q := im_of_coe,
+  specialize p (⟨1, -1⟩:ℤα),
+  specialize q (⟨1, -1⟩:ℤα),
+  simp at p q,
+  ring_nf at p,
+  ext,
+  rw p,
+  rw q,
+  end 
 
   lemma nat_norm_divides (a p : ℤα):
   (p ∣ a) → (nat_Norm p ∣ nat_Norm a):=
@@ -82,6 +98,13 @@ In the case where we assume N(d) = 7, we arrive at a contradiction of the form
   rw ← Norm_mul p n,
   rw hn,
   end
+
+-- don't know how to prove this, maybe we will need a proper coercion?
+-- (There is now a proper coercion in rt_7_ring)
+lemma coe_from_ints (a:ℤ) : (a:ℤα) = (⟨a, 0⟩:ℤα) :=
+begin
+refl,
+end
 
 --Shows that the factorization of y^2-y+2 is valid.
 lemma my_factorization: (y:ℤα)^2-y+2 = (y-α)*(y-α_bar):=
@@ -687,23 +710,8 @@ norm_num at sol,
 have gg : (8:ℤ) = 2^3 := by norm_num,
 rw gg at sol,
 
-have plop : 0 ≤ x ∨ 0 ≤ -x, {
-  by_contra,
-  rw not_or_distrib at h,
-  cases h with f hf,
-  apply hf,
-  linarith,
-},
-have bloop : (0:ℤ) ≤ 2 := by linarith,
-have gloop : (0:ℕ) < 3:= by linarith,
-cases plop,
-rwa pow_left_inj plop bloop gloop at sol,
-exfalso,
-simp at plop,
-have snoop : odd 3 := by norm_num,
-rw ← odd.pow_nonpos_iff snoop at plop,
-rw sol at plop,
-linarith,
+
+sorry,
 },
 exact q,
 end
@@ -718,24 +726,7 @@ rw q at sol,
 norm_num at sol,
 have gg : (8:ℤ) = 2^3 := by norm_num,
 rw gg at sol,
-
-have plop : 0 ≤ x ∨ 0 ≤ -x, {
-  by_contra,
-  rw not_or_distrib at h,
-  cases h with f hf,
-  apply hf,
-  linarith,
-},
-have bloop : (0:ℤ) ≤ 2 := by linarith,
-have gloop : (0:ℕ) < 3:= by linarith,
-cases plop,
-rwa pow_left_inj plop bloop gloop at sol,
-exfalso,
-simp at plop,
-have snoop : odd 3 := by norm_num,
-rw ← odd.pow_nonpos_iff snoop at plop,
-rw sol at plop,
-linarith,
+sorry,
 },
 exact q,
 end
