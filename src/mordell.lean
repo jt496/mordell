@@ -88,7 +88,7 @@ lemma conj_α: star_ring_end ℂ complex_α = α_bar :=
   rw hn,
   end
 
-  --Key lemma
+  --Key lemma.
   lemma norm_divides (a p : ℤα):
   (p ∣ a) → (Norm p ∣ Norm a):=
   begin
