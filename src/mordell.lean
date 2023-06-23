@@ -15,6 +15,7 @@ import
   algebra.group.units
   algebra.group.defs
 
+
 open_locale classical
 
 set_option profiler true
@@ -88,12 +89,31 @@ lemma my_factorization: (y:ℤα)^2-y+2 = (y-α)*(y-α_bar):=
   begin
   transitivity (y:ℤα)^2 - (α+α_bar)*y + α*α_bar, {
     congr,
-    have r : α + α_bar = one := by ring_nf,
+    have r : α + α_bar = one,{
+    unfold α,
+    unfold α_bar,
+    refl,
+    },
     rw r,
     have q : one*(y:ℤα)=(y:ℤα) := one_mul (y:ℤα),
     rw q,
   },
-  ring_nf,
+  rw right_distrib (α:ℤα) (α_bar) (y),
+  rw mul_comm (α_bar:ℤα) (y),
+  rw mul_sub_right_distrib (y:ℤα) (α) ((y:ℤα) - α_bar),
+  rw mul_sub_left_distrib (y:ℤα) (y) (α_bar),
+  rw mul_sub_left_distrib (α:ℤα) (y) (α_bar),
+  rw pow_two (y:ℤα),
+  rw add_comm ((α:ℤα)*y) (y*α_bar),
+  rw ← sub_sub ((y:ℤα)*(y:ℤα)) ((y:ℤα)*α_bar) (α*(y:ℤα) ),
+  nth_rewrite 1 ← add_zero ((y:ℤα)*α_bar),
+  rw ← sub_sub ((y:ℤα)*(y:ℤα)) ((y:ℤα)*α_bar) (0),
+  rw ← neg_zero,
+  --how is this not working : rw neg_neg (0:ℤα), 
+  --rw ← sub_add ((-(y:ℤα))*α_bar) (α*(y:ℤα)) (α*α_bar),
+  --??rw left_distrib (-1:ℤα) (y*α_bar) (α*y),
+  show_term{ring_nf},
+
   end
 
 /- d = gcd (y-α) (y-α_bar) divides the difference of
@@ -189,7 +209,11 @@ begin
 have q := int.dvd_sub_of_mod_eq h,
 cases q with l lh,
 use l,
-linarith,
+rw  ← add_right_inj (s:ℤ) at lh,
+rw add_comm (s:ℤ) (y-s) at lh,
+rw add_comm (s:ℤ) (7*l) at lh,
+rw sub_add_cancel at lh,
+exact lh,
 end 
 
 --The following lemmas show case by case that only y such that y % 7 = 4
@@ -221,12 +245,13 @@ ring_nf at h,
 have r : 7 ∣ ((49 * k + 7) * k),
 {
 use (7*k*k + k),
+-- isn't it best to use ring_nf here?
 ring_nf,
 },
 rw dvd_add_right r at h,
 have j : (0:ℤ) < 2 := by dec_trivial,
 have g := int.le_of_dvd j h,
-linarith,
+show_term{linarith},
 end
 
 lemma y_eq_two_mod_seven (h : 7 ∣ y^2 - y + 2) (p : y % 7 = 2) : false :=
@@ -489,7 +514,7 @@ exact tt,
 },
 exfalso,
 --hbb and lc cause a contradiction
-linarith,
+show_term{linarith},
 end
 
 lemma units_is_bruv (a:ℤαˣ) : (a:ℤα) = 1 ∨ (a:ℤα) = -1 :=
@@ -672,6 +697,7 @@ cases j,
 left,
 exact j,
 right,
+-- can definitely not use linarith
 linarith,
 end
 
