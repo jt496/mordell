@@ -109,7 +109,7 @@ lemma my_factorization: (y:ℤα)^2-y+2 = (y-α)*(y-α_bar):=
   nth_rewrite 1 ← add_zero ((y:ℤα)*α_bar),
   rw ← sub_sub ((y:ℤα)*(y:ℤα)) ((y:ℤα)*α_bar) (0),
   rw ← neg_zero,
-  --how is this not working : rw neg_neg (0:ℤα), 
+  --rw neg_neg (0:ℤα), 
   --rw ← sub_add ((-(y:ℤα))*α_bar) (α*(y:ℤα)) (α*α_bar),
   --??rw left_distrib (-1:ℤα) (y*α_bar) (α*y),
   show_term{ring_nf},
@@ -231,9 +231,11 @@ use (7*k*k - k),
 ring_nf,
 },
 rw dvd_add_right r at h,
-have j : (0:ℤ) < 2 := by linarith,
+have j : (0:ℤ) < 2 := by dec_trivial,
 have g := int.le_of_dvd j h,
-linarith,
+have ng : ¬ (7 ≤ 2) := by dec_trivial,
+
+show_term{linarith},
 end
 
 lemma y_eq_one_mod_seven (h : 7 ∣ y^2 - y + 2) (p : y % 7 = 1) : false :=
@@ -309,7 +311,7 @@ rw ← add_assoc at h,
 rw dvd_add_right r at h,
 have j : (0:ℤ) < 1 := by linarith,
 have g := int.le_of_dvd j h,
-linarith,
+show_term{linarith},
 end
 
 lemma y_eq_six_mod_seven (h : 7 ∣ y^2 - y + 2) (p : y % 7 = 6) : false :=
@@ -514,9 +516,16 @@ exact tt,
 },
 exfalso,
 --hbb and lc cause a contradiction
-show_term{linarith},
+change 1 ≤  a.w^2  at lc,
+have mt : 7*1 ≤  7*a.w^2,{
+  apply mul_le_mul_left' lc,
+},
+--have nt : ¬ (7 * a.w ^ 2 ≤ 4),
+sorry,
+--show_term{linarith [hbb, lc]},
 end
 
+#check int.
 lemma units_is_bruv (a:ℤαˣ) : (a:ℤα) = 1 ∨ (a:ℤα) = -1 :=
 begin
 have q := units.is_unit a,
@@ -589,7 +598,7 @@ exact hc,
 },
 rw p2 at hc,
 use -b,
-simp,
+show_term{simp},
 simp at hc,
 exact hc,
 end
