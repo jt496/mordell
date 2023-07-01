@@ -7,7 +7,7 @@ open_locale classical
 
 /--We will be considering quadratic integers of the form `x+y*α`, where `α=(1+√-7)/2`
 and `x y : ℤ`. We shall write `ℤα` for the Type of these integers,
-and represent them by their x- and y-coordinates.
+and represent them by their z- and w-coordinates.
 -/
 
 @[ext]
@@ -761,7 +761,8 @@ lemma my_quotient_zero : div a 0 = 0 :=
 begin
   unfold div,
   have : ((0:ℤα):ℂ)=0:= my_map_zero,
-  rw [this,div_zero],
+  rw this,
+  rw div_zero,
   unfold nearest_ℤα,
   ext;
   dsimp;
