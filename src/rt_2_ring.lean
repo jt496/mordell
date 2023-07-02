@@ -73,7 +73,7 @@ instance ℤα_repr : has_repr ℤα :=
 
 /-- Defining addition, multiplication and other things needed for rings-/
 
-def zero : ℤα := ⟨0,0⟩
+def zero : ℤα := ⟨0,0⟩  
 def one : ℤα := ⟨1,0⟩
 def α : ℤα := ⟨0,1⟩
 def add : ℤα → ℤα → ℤα := λ a b, ⟨ a.z+b.z, a.w+b.w ⟩

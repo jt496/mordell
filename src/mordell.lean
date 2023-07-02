@@ -18,7 +18,7 @@ import
 
 open_locale classical
 
-set_option profiler true
+--set_option profiler true
 
 namespace ℤα
 --variables (a b : ℤα)
@@ -343,11 +343,11 @@ have h : 7 ∣ y^2 - y + 2, {
   rw ← mn,
   exact nd_dvd_pol,
 },
-have : (7:ℤ) ≠ 0 := by linarith,
-have g : 0 ≤  (7:ℤ)  := by linarith,
+have : (7:ℤ) ≠ 0 := by dec_trivial,
+have g : 0 ≤ (7:ℤ)  := by dec_trivial,
 have k := int.mod_lt y this,
 have j := int.mod_nonneg y this,
-rw  ← abs_eq_self at g,
+rw ← abs_eq_self at g,
 rw g at k,
 interval_cases using j k,
 
