@@ -351,12 +351,43 @@ begin
 exact of_dvd_int (x_pow_six_really_odd sol) (Norm_d_dvd_x_six sol),
 end
 
+lemma divisors_of_eight {k : ℤ} (h : k ∣ 8) (p : 0 ≤ k): k = 1 ∨ k = 2 ∨ k = 4 ∨ k = 8 :=
+begin
+have hl : (0:ℤ) < 8 := by dec_trivial,
+have hp := int.le_of_dvd hl h,
+clear hl,
+have m : k < 9,
+linarith,
+clear hp,
+
+-- have r := nat.divisors_prime_pow nat.prime_two 3,
+-- norm_num at r,
+
+sorry,
+end 
+
 lemma Norm_d_eq_one : Norm d = 1 :=
 begin
 have h := Norm_d_dvd_eight,
 have p := Norm_d_odd sol,
-sorry,
+have easy : 0 ≤ Norm d := abs_nonneg _,
+have q := divisors_of_eight sol h easy,
+cases q,{
+exact q,
+},
+cases q,{
+  exfalso,
+  rw q at p,
+  norm_num at p,
+},
+cases q,{
+  rw q at p,
+  norm_num at p,
+},
+rw q at p,
+norm_num at p,
 end
+
 
 end mordell
 end ℤα 
