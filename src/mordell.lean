@@ -449,7 +449,7 @@ end
 omit sol
 
 --If 'a' is a unit it must have norm 1
-lemma unit_if_norm_one (a : ℤα) : is_unit a → nat_Norm a = 1 :=
+lemma norm_one_if_unit (a : ℤα) : is_unit a → nat_Norm a = 1 :=
 begin
 intro h,
 rw is_unit_iff_exists_inv at h,
@@ -518,18 +518,18 @@ exfalso,
 --hbb and lc cause a contradiction
 change 1 ≤  a.w^2  at lc,
 have mt : 7*1 ≤  7*a.w^2,{
-  apply mul_le_mul_left' lc,
+  linarith,
 },
 --have nt : ¬ (7 * a.w ^ 2 ≤ 4),
-sorry,
---show_term{linarith [hbb, lc]},
+linarith [hbb, lc],
+
 end
 
 #check int.
 lemma units_is_bruv (a:ℤαˣ) : (a:ℤα) = 1 ∨ (a:ℤα) = -1 :=
 begin
 have q := units.is_unit a,
-have p := unit_if_norm_one a q,
+have p := norm_one_if_unit a q,
 have l := units_are p,
 exact l,
 end
@@ -541,7 +541,7 @@ lemma unit_iff_norm_one (a : ℤα) : is_unit a ↔ Norm a = 1 :=
 begin
 split,
 intro h,
-have l := unit_if_norm_one a h,
+have l := norm_one_if_unit a h,
 rw equiv_norms,
 exact_mod_cast l,
 intro h,
