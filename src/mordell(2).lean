@@ -351,6 +351,8 @@ begin
 exact of_dvd_int (x_pow_six_really_odd sol) (Norm_d_dvd_x_six sol),
 end
 
+#eval nat.divisors 8
+
 lemma divisors_of_eight {k : ℤ} (h : k ∣ 8) (p : 0 ≤ k): k = 1 ∨ k = 2 ∨ k = 4 ∨ k = 8 :=
 begin
 have hl : (0:ℤ) < 8 := by dec_trivial,
@@ -359,11 +361,20 @@ clear hl,
 have m : k < 9,
 linarith,
 clear hp,
-
+cases k with k' k'',
+work_on_goal 2
+{
+  have := int.neg_succ_of_nat_lt_zero k'',
+  exfalso,
+  sorry
+},
+change (k':ℤ) ∣ (8:ℕ) at h,
+rw [int.coe_nat_dvd] at h,
+have := (@nat.mem_divisors k' 8).2 ⟨h, dec_trivial⟩,
+fin_cases this;
+simp only [int.of_nat_eq_coe, int.coe_nat_bit0, algebra_map.coe_one, eq_self_iff_true, true_or, or_true],
 -- have r := nat.divisors_prime_pow nat.prime_two 3,
 -- norm_num at r,
-
-sorry,
 end 
 
 lemma Norm_d_eq_one : Norm d = 1 :=
