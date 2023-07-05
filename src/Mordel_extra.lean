@@ -443,6 +443,32 @@ use (⟨-1, 1⟩:ℤα),
 ring_nf,
 end
 
+lemma sqrt_2_lb : (1:ℝ) < rt_2 :=
+begin
+have p : (0:ℝ) ≤  1 := zero_le_one,
+have q : (0:ℝ) ≤ rt_2,{
+  unfold rt_2,
+  exact real.sqrt_nonneg 2,
+},
+rw ← abs_of_nonneg p,
+rw ← abs_of_nonneg q,
+rw ← sq_lt_sq,
+norm_num,
+end
+
+lemma sqrt_2_ub : rt_2 < 2 :=
+begin
+have p : (0:ℝ) ≤  2 := zero_le_two,
+have q : (0:ℝ) ≤ rt_2,{
+  unfold rt_2,
+  exact real.sqrt_nonneg 2,
+},
+rw ← abs_of_nonneg p,
+rw ← abs_of_nonneg q,
+rw ← sq_lt_sq,
+norm_num,
+end
+
 lemma s_ge_zero (v : ℤα) (h : is_unit v) (p : (v.z:ℝ) + v.w*rt_2 ≥ 1 + rt_2) :
 0 ≤ (v.z - v.w) :=
 begin
