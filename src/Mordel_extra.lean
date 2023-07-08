@@ -469,39 +469,125 @@ rw ← sq_lt_sq,
 norm_num,
 end
 
-lemma s_ge_zero (v : ℤα) (h : is_unit v) (p : (v.z:ℝ) + v.w*rt_2 ≥ 1 + rt_2) :
-0 ≤ (v.z - v.w) :=
+-- lemma s_ge_zero (v : ℤα) (h : is_unit v) (p : (v.z:ℝ) + v.w*rt_2 ≥ 1 + rt_2) :
+-- 0 ≤ (v.z - v.w) :=
+-- begin
+
+-- sorry,
+-- end
+
+-- lemma r_gt_zero (v : ℤα) (h : is_unit v) (p : (v.z:ℝ) + v.w*rt_2 ≥ 1 + rt_2) :
+-- 0 < (2*v.w - v.z) :=
+-- begin
+
+-- sorry,
+-- end
+
+-- lemma norm_rs_eq_one (v : ℤα) (h : is_unit v): is_unit (⟨2*v.w - v.z, v.z - v.w⟩:ℤα) :=
+-- begin
+-- have q := (norm_one_iff_unit v).1 h,
+-- unfold Norm at q,
+-- apply (norm_one_iff_unit (⟨2*v.w - v.z, v.z - v.w⟩:ℤα)).2,
+-- unfold Norm,
+-- dsimp,
+-- ring_nf,
+-- rwa abs_sub_comm at q,
+-- end
+
+lemma norm_fac (k : ℤα) : (Norm k : ℝ) = |(k.z:ℝ) + k.w*rt_2|*|(k.z:ℝ) - k.w*rt_2| :=
 begin
-
-sorry,
-end
-
-lemma r_gt_zero (v : ℤα) (h : is_unit v) (p : (v.z:ℝ) + v.w*rt_2 ≥ 1 + rt_2) :
-0 < (2*v.w - v.z) :=
-begin
-
-sorry,
-end
-
-lemma norm_rs_eq_one (v : ℤα) (h : is_unit v): is_unit (⟨2*v.w - v.z, v.z - v.w⟩:ℤα) :=
-begin
-have q := (norm_one_iff_unit v).1 h,
-unfold Norm at q,
-apply (norm_one_iff_unit (⟨2*v.w - v.z, v.z - v.w⟩:ℤα)).2,
 unfold Norm,
-dsimp,
+rw ← abs_mul,
 ring_nf,
-rwa abs_sub_comm at q,
+rw rt_2_sq,
+norm_cast,
 end
 
-lemma units_are {a:ℤα} (k : Norm a = 1):
+lemma size_of_inv {v : ℤα} (h : is_unit v) : |(v.z:ℝ) + v.w*rt_2| = |(v.z:ℝ) - v.w*rt_2|⁻¹ :=
+begin
+rw norm_one_iff_unit at h,
+have q : |(v.z:ℝ) - v.w*rt_2| ≠ 0,{
+by_contra p,
+have ll : (Norm v : ℝ) = 1 := by exact_mod_cast h,
+rw norm_fac v at ll,
+rw p at ll,
+rw mul_zero at ll,
+norm_num at ll,
+},
+rw ← mul_right_inj' q,
+nth_rewrite 3 mul_comm,
+rw inv_mul_cancel q,
+rw mul_comm,
+rw ← norm_fac v,
+exact_mod_cast h,
+end
+
+
+lemma pos_units {v : ℤα} (p : is_unit v) (h : (v.z:ℝ) + v.w*rt_2 ≥ 1) : 0 ≤ v.z ∧ 0 ≤ v.w :=
+begin
+have l : 0 ≤ (v.z:ℝ) ∨ (v.z:ℝ) < 0 := le_or_lt 0 v.z,
+have m : 0 ≤ (v.w:ℝ) ∨ (v.w:ℝ) < 0 := le_or_lt 0 v.w,
+cases l,{
+cases m,{
+split,
+exact_mod_cast l,
+exact_mod_cast m,
+},
+
+have megan := size_of_inv p,
+rw norm_one_iff_unit at p,
+unfold Norm at p,
+have flo : (v.z:ℝ) + v.w*rt_2 < (v.z:ℝ) - v.w*rt_2,{
+apply add_lt_add_left,
+have q : (0:ℝ) < rt_2 := lt_trans zero_lt_one sqrt_2_lb,
+rw ← neg_mul,
+rw mul_lt_mul_right q,
+have deborah := neg_lt_neg m,
+rw neg_zero at deborah,
+exact lt_trans m deborah,
+},
+have johnny := le_trans zero_le_one h,
+have mom := lt_of_lt_of_le' flo h,
+
+rw ← abs_eq_self at johnny,
+rw ← johnny at h,
+have gran := le_of_lt (lt_of_lt_of_le' mom zero_le_one),
+rw ← abs_eq_self at gran,
+rw ← gran at mom,
+rw megan at h,
+
+sorry,
+},
+cases m,{
+
+  sorry,
+},
+-- exfalso,
+-- have q : (0:ℝ) ≤ rt_2,{
+--   unfold rt_2,
+--   exact real.sqrt_nonneg 2,
+-- },
+-- have mm := le_of_lt m,
+-- clear m,
+-- have ll := le_of_lt l,
+-- clear l,
+-- have nob := mul_le_mul_of_nonneg_right mm q,
+-- rw zero_mul at nob,
+-- have snob := add_le_add ll nob,
+-- rw zero_add at snob,
+-- have dobby := le_trans h snob,
+-- norm_num at dobby,
+sorry,
+end  
+
+
+lemma units_are {a:ℤα} (k : is_unit a):
 ∃(n : ℕ), a = (⟨1, 1⟩:ℤα)^n ∨ a = -(⟨1, 1⟩:ℤα)^n ∨ a = (⟨-1, 1⟩:ℤα)^n ∨ a = -(⟨-1, 1⟩:ℤα)^n :=
 begin
 
 sorry,
 end
 
-include sol
 
 
 end mordell
