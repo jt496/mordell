@@ -436,13 +436,6 @@ rw abs_eq at h,
 exact zero_le_one,
 end
 
-lemma fund_unit : is_unit (⟨1, 1⟩:ℤα) :=
-begin
-rw is_unit_iff_exists_inv,
-use (⟨-1, 1⟩:ℤα),
-ring_nf,
-end
-
 lemma sqrt_2_lb : (1:ℝ) < rt_2 :=
 begin
 have p : (0:ℝ) ≤  1 := zero_le_one,
@@ -468,31 +461,6 @@ rw ← abs_of_nonneg q,
 rw ← sq_lt_sq,
 norm_num,
 end
-
--- lemma s_ge_zero (v : ℤα) (h : is_unit v) (p : (v.z:ℝ) + v.w*rt_2 ≥ 1 + rt_2) :
--- 0 ≤ (v.z - v.w) :=
--- begin
-
--- sorry,
--- end
-
--- lemma r_gt_zero (v : ℤα) (h : is_unit v) (p : (v.z:ℝ) + v.w*rt_2 ≥ 1 + rt_2) :
--- 0 < (2*v.w - v.z) :=
--- begin
-
--- sorry,
--- end
-
--- lemma norm_rs_eq_one (v : ℤα) (h : is_unit v): is_unit (⟨2*v.w - v.z, v.z - v.w⟩:ℤα) :=
--- begin
--- have q := (norm_one_iff_unit v).1 h,
--- unfold Norm at q,
--- apply (norm_one_iff_unit (⟨2*v.w - v.z, v.z - v.w⟩:ℤα)).2,
--- unfold Norm,
--- dsimp,
--- ring_nf,
--- rwa abs_sub_comm at q,
--- end
 
 lemma norm_fac (k : ℤα) : (Norm k : ℝ) = |(k.z:ℝ) + k.w*rt_2|*|(k.z:ℝ) - k.w*rt_2| :=
 begin
@@ -523,7 +491,7 @@ exact_mod_cast h,
 end
 
 
-lemma pos_units {v : ℤα} (p : is_unit v) (h : (v.z:ℝ) + v.w*rt_2 ≥ 1) : 0 ≤ v.z ∧ 0 ≤ v.w :=
+lemma pos_units {v : ℤα} (p : is_unit v) (h : 1 ≤ (v.z:ℝ) + v.w*rt_2) : 0 ≤ v.z ∧ 0 ≤ v.w :=
 begin
 have l : 0 ≤ (v.z:ℝ) ∨ (v.z:ℝ) < 0 := le_or_lt 0 v.z,
 have m : 0 ≤ (v.w:ℝ) ∨ (v.w:ℝ) < 0 := le_or_lt 0 v.w,
@@ -558,7 +526,6 @@ rw ← abs_eq_self at gran,
 rw ← gran at mom,
 rw ← gran at grandpa,
 rw megan at h,
-rw ge_iff_le at h,
 rw le_inv zero_lt_one grandpa at h,
 rw inv_one at h,
 have terry := lt_of_lt_of_le mom h,
@@ -588,7 +555,6 @@ rw ← abs_eq_self at gran,
 rw ← gran at mom,
 rw ← gran at grandpa,
 rw megan at h,
-rw ge_iff_le at h,
 rw [← abs_neg, neg_add, ← sub_eq_add_neg, neg_neg] at grandpa,
 rw [← abs_neg, neg_add, ← sub_eq_add_neg, neg_neg] at mom,
 rw le_inv zero_lt_one grandpa at h,
@@ -613,8 +579,182 @@ have dobby := le_trans h snob,
 norm_num at dobby,
 end  
 
+def next_unit : ℤα → ℤα := λ v, (⟨2*v.w - v.z, v.z - v.w⟩:ℤα)
+def f_unit := (⟨1, 1⟩:ℤα)
 
-lemma units_are {a:ℤα} (k : is_unit a):
+noncomputable
+def next_unit_ℝ : ℤα → ℝ  := λ v, (2*v.w - v.z) + (v.z - v.w)*rt_2
+
+lemma mul_units_is_unit {u v : ℤα} (p : is_unit u) (q : is_unit v) : is_unit ((u*v):ℤα) :=
+begin
+rw is_unit_iff_exists_inv at p q ⊢,
+cases q with a ha,
+cases p with b hb,
+use a*b,
+rw mul_assoc,
+nth_rewrite 1 ← mul_assoc,
+rw ha,
+rw one_mul,
+exact hb,
+end
+
+lemma f_unit_is_unit : is_unit f_unit :=
+begin
+rw is_unit_iff_exists_inv,
+use (⟨-1, 1⟩:ℤα),
+ring_nf,
+end
+
+lemma unit_expansion (v : ℤα) : v = f_unit * next_unit v :=
+begin
+unfold f_unit next_unit,
+change v = (⟨1*(2 * v.w - v.z) + 2*1*(v.z - v.w), 1*(v.z - v.w) + 1*(2 * v.w - v.z)⟩:ℤα),
+ring_nf,
+ext,
+dsimp,
+refl,
+dsimp,
+refl,
+end
+
+lemma next_unit_is_unit {v : ℤα} (h : is_unit v): is_unit (next_unit v) :=
+begin
+have q := (norm_one_iff_unit v).1 h,
+unfold Norm at q,
+apply (norm_one_iff_unit (next_unit v)).2,
+unfold Norm next_unit,
+dsimp,
+ring_nf,
+rwa abs_sub_comm at q,
+end
+
+lemma inductive_element_ge_one {v : ℤα} (h : is_unit v) (p : 1 + rt_2 ≤ (v.z:ℝ) + v.w*rt_2) :
+1 ≤ (next_unit_ℝ v) :=
+begin
+unfold next_unit_ℝ,
+have q : 0 < rt_2 - 1,{
+  rw lt_sub_iff_add_lt',
+  rw add_zero,
+  exact sqrt_2_lb,
+},
+rw ← mul_le_mul_right q at p,
+ring_nf at p,
+have bob : (2:ℝ) - 1 = 1 := by norm_num,
+rw [rt_2_sq, bob, add_mul, mul_assoc, ← sq, rt_2_sq, ← sub_add_eq_add_sub, mul_comm] at p,
+exact p,
+end
+
+lemma components_ge_zero {v : ℤα} (h : is_unit v) (p : 1 + rt_2 ≤ (v.z:ℝ) + v.w*rt_2) :
+0 ≤ (next_unit v).z ∧ 0 ≤ (next_unit v).w :=
+begin
+have mm := inductive_element_ge_one h p,
+have lucy := next_unit_is_unit h,
+have cindy := pos_units lucy,
+unfold next_unit at cindy,
+dsimp at cindy,
+unfold next_unit_ℝ at mm,
+norm_cast at mm,
+exact cindy mm,
+end
+
+lemma dissection_of_unit (v : ℤα): (1 + rt_2) * (next_unit_ℝ v) = (v.z:ℝ) + v.w*rt_2 :=
+begin
+unfold next_unit_ℝ,
+rw [mul_add, mul_sub, sub_mul, mul_sub],
+  repeat {rw add_mul},
+  repeat {rw one_mul},
+  nth_rewrite 2 ← mul_assoc,
+  nth_rewrite 9 mul_comm,
+  rw [mul_assoc, ← sq, rt_2_sq],
+  ring_nf,
+  rw rt_2_sq,
+  ring_nf,
+end
+
+lemma inductive_element_smaller {v : ℤα} (h : is_unit v) (n : 1 + rt_2 ≤ (v.z:ℝ) + v.w*rt_2):
+next_unit_ℝ v < (v.z:ℝ) + v.w*rt_2 :=
+begin
+have q : (0:ℝ) < rt_2 := lt_trans zero_lt_one sqrt_2_lb,
+have p := add_lt_add_left q 1,
+rw add_zero at p,
+have mm := lt_of_lt_of_le zero_lt_one (inductive_element_ge_one h n),
+rw ← mul_lt_mul_right mm at p,
+rw one_mul at p,
+rw dissection_of_unit at p,
+exact p,
+end
+
+
+lemma inductive_step :
+∀(b:ℕ), (∃(a:ℕ), is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) → (∃(a:ℕ), ((is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) ∧ ∃(n:ℕ), (⟨(a:ℤ),(b:ℤ)⟩:ℤα) = f_unit^n)) :=
+begin
+intro b,
+induction b using nat.strong_induction_on with k hk,
+dsimp at hk,
+intro h,
+cases h with r hr,
+use r,
+split,
+exact hr,
+have pastor := unit_expansion (⟨(r:ℤ),(k:ℤ)⟩:ℤα),
+unfold next_unit at pastor,
+dsimp at pastor,
+specialize hk (r-k),
+-----inequality setup
+have devil : 0 ≤ (r:ℤ) - k := sorry,
+have devil2 : k ≤ r,{
+  have bb := le_of_sub_nonneg devil,
+  exact_mod_cast bb,
+},
+have preangel : 0 < 2*(k:ℤ) - r := sorry,
+have angel : r-k < k,{
+  have bbb := lt_of_sub_pos preangel,
+  rw [two_mul, ← sub_lt_iff_lt_add, ← nat.cast_sub devil2] at bbb,
+  exact_mod_cast bbb,
+},
+have angel2 : r ≤ 2*k := by exact_mod_cast le_of_lt (lt_of_sub_pos preangel),
+-----
+have sin := hk angel,
+clear hk angel,
+have god : ∃ (a : ℕ), is_unit (⟨(a:ℤ),((r-k):ℤ)⟩:ℤα),{
+  use 2*k-r,
+  have saint := next_unit_is_unit hr,
+  unfold next_unit at saint,
+  dsimp at saint,
+  rw nat.cast_sub angel2,
+  rw nat.cast_mul,
+  exact saint,
+},
+rw ← nat.cast_sub devil2 at god,
+have hell := sin god,
+clear sin,
+cases hell with t ht,
+cases ht with hp hq,
+cases hq with n hn,
+use n+1,
+have cloud : t = 2*k-r,{
+  rw norm_one_iff_unit at hp,
+  unfold Norm at hp,
+  dsimp at hp,
+  have obv : (0:ℤ) ≤ 1 := zero_le_one,
+  rw abs_eq obv at hp,
+  cases hp,{
+    
+    sorry,
+  },
+  sorry,
+},
+rw cloud at hn,
+rw pastor,
+norm_cast,
+rw hn,
+rw pow_add f_unit n 1,
+rw mul_comm,
+rw pow_one,
+end
+
+
+lemma units_are {a:ℤα} (h : is_unit a) :
 ∃(n : ℕ), a = (⟨1, 1⟩:ℤα)^n ∨ a = -(⟨1, 1⟩:ℤα)^n ∨ a = (⟨-1, 1⟩:ℤα)^n ∨ a = -(⟨-1, 1⟩:ℤα)^n :=
 begin
 
