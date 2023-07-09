@@ -353,6 +353,7 @@ end
 
 #eval nat.divisors 8
 
+omit sol
 lemma divisors_of_eight {k : ℤ} (h : k ∣ 8) (p : 0 ≤ k): k = 1 ∨ k = 2 ∨ k = 4 ∨ k = 8 :=
 begin
 have hl : (0:ℤ) < 8 := by dec_trivial,
@@ -364,25 +365,25 @@ clear hp,
 cases k with k' k'',
 work_on_goal 2
 {
-  have := int.neg_succ_of_nat_lt_zero k'',
   exfalso,
-  sorry
+  have := int.neg_succ_of_nat_lt_zero k'',
+  have chip := lt_of_lt_of_le this p,
+  exact -[1+ k''].lt_irrefl chip,
 },
 change (k':ℤ) ∣ (8:ℕ) at h,
 rw [int.coe_nat_dvd] at h,
 have := (@nat.mem_divisors k' 8).2 ⟨h, dec_trivial⟩,
 fin_cases this;
 simp only [int.of_nat_eq_coe, int.coe_nat_bit0, algebra_map.coe_one, eq_self_iff_true, true_or, or_true],
--- have r := nat.divisors_prime_pow nat.prime_two 3,
--- norm_num at r,
 end 
+include sol
 
 lemma Norm_d_eq_one : Norm d = 1 :=
 begin
 have h := Norm_d_dvd_eight,
 have p := Norm_d_odd sol,
 have easy : 0 ≤ Norm d := abs_nonneg _,
-have q := divisors_of_eight sol h easy,
+have q := divisors_of_eight h easy,
 cases q,{
 exact q,
 },
@@ -398,6 +399,7 @@ cases q,{
 rw q at p,
 norm_num at p,
 end
+
 omit sol
 
 lemma norm_one_iff_unit (k : ℤα) : is_unit k ↔ Norm k = 1 :=
@@ -490,15 +492,39 @@ rw ← norm_fac v,
 exact_mod_cast h,
 end
 
+lemma unit_not_mul_of_rt_2 {v : ℤα} (p : is_unit v) : v.z ≠ 0 :=
+begin
+rw norm_one_iff_unit at p,
+unfold Norm at p,
+by_contra,
+rw [h, sq, zero_mul, zero_sub, abs_neg] at p,
+have dory := sq_nonneg v.w,
+have cherry : (0:ℤ)<2:=zero_lt_two,
+rw ← mul_le_mul_left cherry at dory,
+rw mul_zero at dory,
+rw abs_of_nonneg dory at p,
 
-lemma pos_units {v : ℤα} (p : is_unit v) (h : 1 ≤ (v.z:ℝ) + v.w*rt_2) : 0 ≤ v.z ∧ 0 ≤ v.w :=
+have carla : (2:ℤ) ∣ 1,{
+rw dvd_iff_exists_eq_mul_left,
+use v.w^2,
+symmetry,
+rwa mul_comm,
+},
+norm_num at carla,
+end
+
+
+lemma pos_units {v : ℤα} (p : is_unit v) (h : 1 ≤ (v.z:ℝ) + v.w*rt_2) : 0 < v.z ∧ 0 ≤ v.w :=
 begin
 have l : 0 ≤ (v.z:ℝ) ∨ (v.z:ℝ) < 0 := le_or_lt 0 v.z,
 have m : 0 ≤ (v.w:ℝ) ∨ (v.w:ℝ) < 0 := le_or_lt 0 v.w,
 cases l,{
 cases m,{
 split,
-exact_mod_cast l,
+have josh := unit_not_mul_of_rt_2 p,
+have hoop : 0 ≤ v.z := by exact_mod_cast l,
+rw has_le.le.lt_iff_ne hoop,
+exact josh.symm,
 exact_mod_cast m,
 },
 
@@ -645,7 +671,7 @@ exact p,
 end
 
 lemma components_ge_zero {v : ℤα} (h : is_unit v) (p : 1 + rt_2 ≤ (v.z:ℝ) + v.w*rt_2) :
-0 ≤ (next_unit v).z ∧ 0 ≤ (next_unit v).w :=
+0 < (next_unit v).z ∧ 0 ≤ (next_unit v).w :=
 begin
 have mm := inductive_element_ge_one h p,
 have lucy := next_unit_is_unit h,
@@ -657,33 +683,50 @@ norm_cast at mm,
 exact cindy mm,
 end
 
-lemma dissection_of_unit (v : ℤα): (1 + rt_2) * (next_unit_ℝ v) = (v.z:ℝ) + v.w*rt_2 :=
-begin
-unfold next_unit_ℝ,
-rw [mul_add, mul_sub, sub_mul, mul_sub],
-  repeat {rw add_mul},
-  repeat {rw one_mul},
-  nth_rewrite 2 ← mul_assoc,
-  nth_rewrite 9 mul_comm,
-  rw [mul_assoc, ← sq, rt_2_sq],
-  ring_nf,
-  rw rt_2_sq,
-  ring_nf,
-end
+-- lemma dissection_of_unit (v : ℤα): (1 + rt_2) * (next_unit_ℝ v) = (v.z:ℝ) + v.w*rt_2 :=
+-- begin
+-- unfold next_unit_ℝ,
+-- rw [mul_add, mul_sub, sub_mul, mul_sub],
+--   repeat {rw add_mul},
+--   repeat {rw one_mul},
+--   nth_rewrite 2 ← mul_assoc,
+--   nth_rewrite 9 mul_comm,
+--   rw [mul_assoc, ← sq, rt_2_sq],
+--   ring_nf,
+--   rw rt_2_sq,
+--   ring_nf,
+-- end
 
-lemma inductive_element_smaller {v : ℤα} (h : is_unit v) (n : 1 + rt_2 ≤ (v.z:ℝ) + v.w*rt_2):
-next_unit_ℝ v < (v.z:ℝ) + v.w*rt_2 :=
-begin
-have q : (0:ℝ) < rt_2 := lt_trans zero_lt_one sqrt_2_lb,
-have p := add_lt_add_left q 1,
-rw add_zero at p,
-have mm := lt_of_lt_of_le zero_lt_one (inductive_element_ge_one h n),
-rw ← mul_lt_mul_right mm at p,
-rw one_mul at p,
-rw dissection_of_unit at p,
-exact p,
-end
+-- lemma inductive_element_smaller {v : ℤα} (h : is_unit v) (n : 1 + rt_2 ≤ (v.z:ℝ) + v.w*rt_2):
+-- next_unit_ℝ v < (v.z:ℝ) + v.w*rt_2 :=
+-- begin
+-- have q : (0:ℝ) < rt_2 := lt_trans zero_lt_one sqrt_2_lb,
+-- have p := add_lt_add_left q 1,
+-- rw add_zero at p,
+-- have mm := lt_of_lt_of_le zero_lt_one (inductive_element_ge_one h n),
+-- rw ← mul_lt_mul_right mm at p,
+-- rw one_mul at p,
+-- rw dissection_of_unit at p,
+-- exact p,
+-- end
 
+lemma units_ge_f_unit {a b : ℕ} (p : is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) (q : 0 < b) :
+1 + rt_2 ≤ ((a:ℤ):ℝ) + ((b:ℤ):ℝ)*rt_2 :=
+begin
+have alice : 0 ≤ (a:ℤ) := by exact_mod_cast (zero_le a),
+have ashley := unit_not_mul_of_rt_2 p,
+change (a:ℤ) ≠ 0 at ashley, 
+have akon := lt_iff_le_and_ne.2 ⟨alice, ashley.symm⟩,
+have ben : 0 < (b:ℤ) := by exact_mod_cast q,
+rw int.lt_iff_add_one_le at akon ben,
+rw zero_add at akon ben,
+have ben2 : 1 ≤ ((b:ℤ):ℝ) := by exact_mod_cast ben, 
+have akon2 : 1 ≤ ((a:ℤ):ℝ) := by exact_mod_cast akon,
+have jason : (0:ℝ) < rt_2 := lt_trans zero_lt_one sqrt_2_lb,
+rw ← mul_le_mul_right jason at ben2,
+rw one_mul at ben2,
+exact add_le_add akon2 ben2,
+end
 
 lemma inductive_step :
 ∀(b:ℕ), (∃(a:ℕ), is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) → (∃(a:ℕ), ((is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) ∧ ∃(n:ℕ), (⟨(a:ℤ),(b:ℤ)⟩:ℤα) = f_unit^n)) :=
@@ -691,6 +734,22 @@ begin
 intro b,
 induction b using nat.strong_induction_on with k hk,
 dsimp at hk,
+
+have baptist := nat.eq_zero_or_pos k,
+cases baptist,{
+  intro h,
+  rw baptist,
+  use 1,
+  split,
+  rw norm_one_iff_unit,
+  unfold Norm,
+  dsimp,
+  norm_num,
+  use 0,
+  rw pow_zero,
+  refl,
+},
+
 intro h,
 cases h with r hr,
 use r,
@@ -701,12 +760,16 @@ unfold next_unit at pastor,
 dsimp at pastor,
 specialize hk (r-k),
 -----inequality setup
-have devil : 0 ≤ (r:ℤ) - k := sorry,
+have gentle := components_ge_zero hr,
+unfold next_unit at gentle,
+dsimp at gentle,
+have holy := gentle (units_ge_f_unit hr baptist),
+have devil := holy.2,
 have devil2 : k ≤ r,{
   have bb := le_of_sub_nonneg devil,
   exact_mod_cast bb,
 },
-have preangel : 0 < 2*(k:ℤ) - r := sorry,
+have preangel : 0 < 2*(k:ℤ) - r := holy.1,
 have angel : r-k < k,{
   have bbb := lt_of_sub_pos preangel,
   rw [two_mul, ← sub_lt_iff_lt_add, ← nat.cast_sub devil2] at bbb,
@@ -733,15 +796,15 @@ cases ht with hp hq,
 cases hq with n hn,
 use n+1,
 have cloud : t = 2*k-r,{
-  rw norm_one_iff_unit at hp,
-  unfold Norm at hp,
-  dsimp at hp,
-  have obv : (0:ℤ) ≤ 1 := zero_le_one,
-  rw abs_eq obv at hp,
-  cases hp,{
-    
-    sorry,
-  },
+  -- rw norm_one_iff_unit at hp,
+  -- unfold Norm at hp,
+  -- dsimp at hp,
+  -- have obv : (0:ℤ) ≤ 1 := zero_le_one,
+  -- rw abs_eq obv at hp,
+  -- cases hp,{
+
+  --   sorry,
+  -- },
   sorry,
 },
 rw cloud at hn,
