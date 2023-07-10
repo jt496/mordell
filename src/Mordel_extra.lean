@@ -607,6 +607,7 @@ end
 
 def next_unit : ℤα → ℤα := λ v, (⟨2*v.w - v.z, v.z - v.w⟩:ℤα)
 def f_unit := (⟨1, 1⟩:ℤα)
+def f_unit_inv := (⟨-1, 1⟩:ℤα)
 
 noncomputable
 def next_unit_ℝ : ℤα → ℝ  := λ v, (2*v.w - v.z) + (v.z - v.w)*rt_2
@@ -624,12 +625,12 @@ def next_unit_ℝ : ℤα → ℝ  := λ v, (2*v.w - v.z) + (v.z - v.w)*rt_2
 -- exact hb,
 -- end
 
--- lemma f_unit_is_unit : is_unit f_unit :=
--- begin
--- rw is_unit_iff_exists_inv,
--- use (⟨-1, 1⟩:ℤα),
--- ring_nf,
--- end
+lemma f_unit_is_unit : is_unit f_unit :=
+begin
+rw is_unit_iff_exists_inv,
+use (⟨-1, 1⟩:ℤα),
+ring_nf,
+end
 
 lemma unit_expansion (v : ℤα) : v = f_unit * next_unit v :=
 begin
@@ -840,12 +841,295 @@ rw equiv_ℤα v at logan,
 exact logan p,
 end 
 
+lemma f_unit_inv_is_unit : is_unit f_unit_inv :=
+begin
+rw is_unit_iff_exists_inv,
+use f_unit,
+ring_nf,
+end
 
-lemma units_are {a:ℤα} (h : is_unit a) :
-∃(n : ℕ), a = (⟨1, 1⟩:ℤα)^n ∨ a = -(⟨1, 1⟩:ℤα)^n ∨ a = (⟨-1, 1⟩:ℤα)^n ∨ a = -(⟨-1, 1⟩:ℤα)^n :=
+lemma f_unit_inv_for_real : ∃(m n : ℤαˣ), (m:ℤα) = f_unit ∧ (n:ℤα) = f_unit_inv ∧ n = m⁻¹ :=
+begin
+have h := f_unit_is_unit,
+have g := f_unit_inv_is_unit,
+unfold is_unit at h g,
+cases g with n hn,
+cases h with m hm,
+use m,
+use n,
+split,
+exact hm,
+split,
+exact hn,
+
+apply eq_inv_of_mul_eq_one_left,
+rw units.ext_iff,
+rw units.coe_mul,
+rw hn,
+rw hm,
+ring_nf,
+end
+
+lemma inv_of_rand_unit {v:ℤα} (p : is_unit v) :
+(∃(m n: ℤαˣ), (m:ℤα) = v ∧ (n:ℤα) = (⟨-v.z, v.w⟩:ℤα) ∧ n = m⁻¹) ∨ (∃(m n: ℤαˣ), (m:ℤα) = v ∧ (n:ℤα) = (⟨v.z, -v.w⟩:ℤα) ∧ n = m⁻¹) :=
+begin
+have q := p,
+unfold is_unit at p,
+cases p with m hm,
+have jane : is_unit (⟨-v.z, v.w⟩:ℤα), {
+rw norm_one_iff_unit,
+unfold Norm,
+dsimp,
+rw neg_sq,
+rw norm_one_iff_unit at q,
+unfold Norm at q,
+exact q,
+},
+have bane : is_unit (⟨v.z, -v.w⟩:ℤα), {
+rw norm_one_iff_unit,
+unfold Norm,
+dsimp,
+rw neg_sq,
+rw norm_one_iff_unit at q,
+unfold Norm at q,
+exact q,
+},
+cases jane with r hr,
+cases bane with s hs,
+rw norm_one_iff_unit at q,
+unfold Norm at q,
+have obv : (0:ℤ) ≤ 1 := zero_le_one, 
+rw abs_eq obv at q,
+clear obv,
+cases q,{
+  right,
+  use m,
+  use s,
+  split,
+  exact hm,
+  split,
+  exact hs,
+  apply eq_inv_of_mul_eq_one_left,
+  rw units.ext_iff,
+  rw units.coe_mul,
+  rw hm,
+  rw hs,
+  nth_rewrite 2 ← equiv_ℤα v,
+  change (⟨v.z*v.z + 2*(-v.w)*v.w, v.z*v.w + (-v.w)*v.z⟩:ℤα) = 1,
+  ring_nf,
+  rw q,
+  refl,
+},
+
+  left,
+  use m,
+  use r,
+  split,
+  exact hm,
+  split,
+  exact hr,
+  apply eq_inv_of_mul_eq_one_left,
+  rw units.ext_iff,
+  rw units.coe_mul,
+  rw hm,
+  rw hr,
+  nth_rewrite 2 ← equiv_ℤα v,
+  change (⟨(-v.z)*v.z + 2*v.w*v.w, (-v.z)*v.w + v.w*v.z⟩:ℤα) = 1,
+  ring_nf,
+  rw [← neg_eq_iff_eq_neg, neg_sub', sub_neg_eq_add] at q,
+  rw q,
+  refl,
+end
+
+
+lemma units_are {v:ℤα} (p : is_unit v) :
+∃(n : ℕ), v = (f_unit)^n ∨ v = -(f_unit)^n ∨ v = (f_unit_inv)^n ∨ v = -(f_unit_inv)^n :=
 begin
 
-sorry,
+have hz := le_or_lt 0 v.z,
+have hw := le_or_lt 0 v.w,
+
+cases hz,{
+cases hw,{
+---------------
+have dolphin := inductive_fallout p hz hw,
+cases dolphin with n hn,
+use n,
+left,
+exact hn,
+},
+
+-----------------
+rw ← left.neg_pos_iff at hw,
+have hq := le_of_lt hw,
+clear hw,
+have seal : is_unit (⟨v.z, -v.w⟩:ℤα), {
+rw norm_one_iff_unit,
+unfold Norm,
+dsimp,
+rw neg_sq,
+rw norm_one_iff_unit at p,
+unfold Norm at p,
+exact p,
+},
+have dolphin := inductive_fallout seal hz hq,
+cases dolphin with n hn,
+use n,
+right,
+right,
+
+have whale := inv_of_rand_unit p,
+cases whale,{
+cases whale with r hr,
+cases hr with s hp,
+cases hp with hr hl,
+cases hl with hs hi,
+rw ← neg_inj at hn,
+change (⟨-v.z, -(-v.w)⟩:ℤα) = -f_unit ^ n at hn,
+rw neg_neg at hn,
+rw ← hs at hn,
+rw hi at hn,
+have jelly := f_unit_inv_for_real,
+cases jelly with t ht,
+cases ht with l hbbb,
+cases hbbb with hx hbb,
+cases hbb with hy hb,
+
+rw ← hx at hn,
+have wave : r⁻¹ = -t^n := by exact_mod_cast hn,
+rw inv_eq_iff_eq_inv at wave,
+rw inv_neg at wave,
+rw ← inv_pow at wave,
+rw ← hb at wave,
+have storm : (r:ℤα) = -(l:ℤα)^n := by exact_mod_cast wave,
+rw hr at storm,
+rw hy at storm,
+right,
+exact storm,
+},
+cases whale with r hr,
+cases hr with s hp,
+cases hp with hr hl,
+cases hl with hs hi,
+rw ← hs at hn,
+rw hi at hn,
+have jelly := f_unit_inv_for_real,
+cases jelly with t ht,
+cases ht with l hbbb,
+cases hbbb with hx hbb,
+cases hbb with hy hb,
+rw ← hx at hn,
+have wave : r⁻¹ = t^n := by exact_mod_cast hn,
+rw inv_eq_iff_eq_inv at wave,
+rw ← inv_pow at wave,
+rw ← hb at wave,
+have storm : (r:ℤα) = (l:ℤα)^n := by exact_mod_cast wave,
+rw hr at storm,
+rw hy at storm,
+left,
+exact storm,
+},
+-------------
+cases hw, {
+
+rw ← left.neg_pos_iff at hz,
+have hq := le_of_lt hz,
+clear hz,
+have seal : is_unit (⟨-v.z, v.w⟩:ℤα), {
+rw norm_one_iff_unit,
+unfold Norm,
+dsimp,
+rw neg_sq,
+rw norm_one_iff_unit at p,
+unfold Norm at p,
+exact p,
+},
+have dolphin := inductive_fallout seal hq hw,
+cases dolphin with n hn,
+use n,
+right,
+right,
+
+have whale := inv_of_rand_unit p,
+cases whale,{
+
+cases whale with r hr,
+cases hr with s hp,
+cases hp with hr hl,
+cases hl with hs hi,
+rw ← hs at hn,
+rw hi at hn,
+have jelly := f_unit_inv_for_real,
+cases jelly with t ht,
+cases ht with l hbbb,
+cases hbbb with hx hbb,
+cases hbb with hy hb,
+rw ← hx at hn,
+have wave : r⁻¹ = t^n := by exact_mod_cast hn,
+rw inv_eq_iff_eq_inv at wave,
+rw ← inv_pow at wave,
+rw ← hb at wave,
+have storm : (r:ℤα) = (l:ℤα)^n := by exact_mod_cast wave,
+rw hr at storm,
+rw hy at storm,
+left,
+exact storm,
+},
+
+cases whale with r hr,
+cases hr with s hp,
+cases hp with hr hl,
+cases hl with hs hi,
+rw ← neg_inj at hn,
+change (⟨-(-v.z), -v.w⟩:ℤα) = -f_unit ^ n at hn,
+rw neg_neg at hn,
+rw ← hs at hn,
+rw hi at hn,
+have jelly := f_unit_inv_for_real,
+cases jelly with t ht,
+cases ht with l hbbb,
+cases hbbb with hx hbb,
+cases hbb with hy hb,
+
+rw ← hx at hn,
+have wave : r⁻¹ = -t^n := by exact_mod_cast hn,
+rw inv_eq_iff_eq_inv at wave,
+rw inv_neg at wave,
+rw ← inv_pow at wave,
+rw ← hb at wave,
+have storm : (r:ℤα) = -(l:ℤα)^n := by exact_mod_cast wave,
+rw hr at storm,
+rw hy at storm,
+right,
+exact storm,
+},
+
+-------------
+rw ← left.neg_pos_iff at hz,
+have hu := le_of_lt hz,
+clear hz,
+rw ← left.neg_pos_iff at hw,
+have hq := le_of_lt hw,
+clear hw,
+
+have seal : is_unit (⟨-v.z, -v.w⟩:ℤα), {
+rw norm_one_iff_unit,
+unfold Norm,
+dsimp,
+repeat {rw neg_sq},
+rw norm_one_iff_unit at p,
+unfold Norm at p,
+exact p,
+},
+have dolphin := inductive_fallout seal hu hq,
+cases dolphin with n hn,
+use n,
+right,
+left,
+change -(⟨v.z,v.w⟩:ℤα) = f_unit ^ n at hn,
+rw equiv_ℤα at hn,
+rw ← neg_eq_iff_eq_neg,
+exact hn,
 end
 
 
