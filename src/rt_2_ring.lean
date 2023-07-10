@@ -298,7 +298,7 @@ begin
 end
 
 noncomputable
-def to_ℝ  : ℤα → ℝ := λ a, a.z + a.w * rt_2
+def to_ℝ : ℤα → ℝ := λ a, a.z + a.w * rt_2
 
 lemma my_map_one : to_ℝ one = 1 :=
 begin

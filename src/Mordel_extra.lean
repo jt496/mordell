@@ -333,25 +333,22 @@ cases hm with j hj,
 by_contra,
 rw ← int.even_iff_not_odd at h,
 cases h with b hb,
-rw hj at hk,
-rw hb at hk,
-rw ← two_mul at hk,
-rw add_comm at hk,
+rw [hj, hb, ← two_mul, add_comm] at hk,
 have p := sub_eq_of_eq_add hk,
-rw mul_assoc at p,
-rw ← mul_sub at p,
-rw mul_comm at p,
+rw [mul_assoc, ← mul_sub, mul_comm] at p,
 have jeff := dvd_of_mul_left_eq (b * j - k) p,
 norm_num at jeff,
 end
 
 include sol
+
 lemma Norm_d_odd : odd (Norm d) :=
 begin
 exact of_dvd_int (x_pow_six_really_odd sol) (Norm_d_dvd_x_six sol),
 end
 
 #eval nat.divisors 8
+omit sol
 
 lemma divisors_of_eight {k : ℤ} (h : k ∣ 8) (p : 0 ≤ k): k = 1 ∨ k = 2 ∨ k = 4 ∨ k = 8 :=
 begin
@@ -364,25 +361,26 @@ clear hp,
 cases k with k' k'',
 work_on_goal 2
 {
-  have := int.neg_succ_of_nat_lt_zero k'',
   exfalso,
-  sorry
+  have := int.neg_succ_of_nat_lt_zero k'',
+  have chip := lt_of_lt_of_le this p,
+  exact -[1+ k''].lt_irrefl chip,
 },
 change (k':ℤ) ∣ (8:ℕ) at h,
 rw [int.coe_nat_dvd] at h,
 have := (@nat.mem_divisors k' 8).2 ⟨h, dec_trivial⟩,
 fin_cases this;
 simp only [int.of_nat_eq_coe, int.coe_nat_bit0, algebra_map.coe_one, eq_self_iff_true, true_or, or_true],
--- have r := nat.divisors_prime_pow nat.prime_two 3,
--- norm_num at r,
 end 
+include sol
+
 
 lemma Norm_d_eq_one : Norm d = 1 :=
 begin
 have h := Norm_d_dvd_eight,
 have p := Norm_d_odd sol,
 have easy : 0 ≤ Norm d := abs_nonneg _,
-have q := divisors_of_eight sol h easy,
+have q := divisors_of_eight h easy,
 cases q,{
 exact q,
 },
@@ -398,7 +396,10 @@ cases q,{
 rw q at p,
 norm_num at p,
 end
+
 omit sol
+
+--Quest to find units begins
 
 lemma norm_one_iff_unit (k : ℤα) : is_unit k ↔ Norm k = 1 :=
 begin
@@ -436,13 +437,6 @@ rw abs_eq at h,
 exact zero_le_one,
 end
 
-lemma fund_unit : is_unit (⟨1, 1⟩:ℤα) :=
-begin
-rw is_unit_iff_exists_inv,
-use (⟨-1, 1⟩:ℤα),
-ring_nf,
-end
-
 lemma sqrt_2_lb : (1:ℝ) < rt_2 :=
 begin
 have p : (0:ℝ) ≤  1 := zero_le_one,
@@ -456,42 +450,17 @@ rw ← sq_lt_sq,
 norm_num,
 end
 
-lemma sqrt_2_ub : rt_2 < 2 :=
-begin
-have p : (0:ℝ) ≤  2 := zero_le_two,
-have q : (0:ℝ) ≤ rt_2,{
-  unfold rt_2,
-  exact real.sqrt_nonneg 2,
-},
-rw ← abs_of_nonneg p,
-rw ← abs_of_nonneg q,
-rw ← sq_lt_sq,
-norm_num,
-end
-
--- lemma s_ge_zero (v : ℤα) (h : is_unit v) (p : (v.z:ℝ) + v.w*rt_2 ≥ 1 + rt_2) :
--- 0 ≤ (v.z - v.w) :=
+-- lemma sqrt_2_ub : rt_2 < 2 :=
 -- begin
-
--- sorry,
--- end
-
--- lemma r_gt_zero (v : ℤα) (h : is_unit v) (p : (v.z:ℝ) + v.w*rt_2 ≥ 1 + rt_2) :
--- 0 < (2*v.w - v.z) :=
--- begin
-
--- sorry,
--- end
-
--- lemma norm_rs_eq_one (v : ℤα) (h : is_unit v): is_unit (⟨2*v.w - v.z, v.z - v.w⟩:ℤα) :=
--- begin
--- have q := (norm_one_iff_unit v).1 h,
--- unfold Norm at q,
--- apply (norm_one_iff_unit (⟨2*v.w - v.z, v.z - v.w⟩:ℤα)).2,
--- unfold Norm,
--- dsimp,
--- ring_nf,
--- rwa abs_sub_comm at q,
+-- have p : (0:ℝ) ≤  2 := zero_le_two,
+-- have q : (0:ℝ) ≤ rt_2,{
+--   unfold rt_2,
+--   exact real.sqrt_nonneg 2,
+-- },
+-- rw ← abs_of_nonneg p,
+-- rw ← abs_of_nonneg q,
+-- rw ← sq_lt_sq,
+-- norm_num,
 -- end
 
 lemma norm_fac (k : ℤα) : (Norm k : ℝ) = |(k.z:ℝ) + k.w*rt_2|*|(k.z:ℝ) - k.w*rt_2| :=
@@ -522,18 +491,43 @@ rw ← norm_fac v,
 exact_mod_cast h,
 end
 
+lemma unit_not_mul_of_rt_2 {v : ℤα} (p : is_unit v) : v.z ≠ 0 :=
+begin
+rw norm_one_iff_unit at p,
+unfold Norm at p,
+by_contra,
+rw [h, sq, zero_mul, zero_sub, abs_neg] at p,
+have dory := sq_nonneg v.w,
+have cherry : (0:ℤ)<2:=zero_lt_two,
+rw ← mul_le_mul_left cherry at dory,
+rw mul_zero at dory,
+rw abs_of_nonneg dory at p,
 
-lemma pos_units {v : ℤα} (p : is_unit v) (h : (v.z:ℝ) + v.w*rt_2 ≥ 1) : 0 ≤ v.z ∧ 0 ≤ v.w :=
+have carla : (2:ℤ) ∣ 1,{
+rw dvd_iff_exists_eq_mul_left,
+use v.w^2,
+symmetry,
+rwa mul_comm,
+},
+norm_num at carla,
+end
+
+
+lemma pos_units {v : ℤα} (p : is_unit v) (h : 1 ≤ (v.z:ℝ) + v.w*rt_2) : 0 < v.z ∧ 0 ≤ v.w :=
 begin
 have l : 0 ≤ (v.z:ℝ) ∨ (v.z:ℝ) < 0 := le_or_lt 0 v.z,
 have m : 0 ≤ (v.w:ℝ) ∨ (v.w:ℝ) < 0 := le_or_lt 0 v.w,
 cases l,{
 cases m,{
 split,
-exact_mod_cast l,
+have josh := unit_not_mul_of_rt_2 p,
+have hoop : 0 ≤ v.z := by exact_mod_cast l,
+rw has_le.le.lt_iff_ne hoop,
+exact josh.symm,
 exact_mod_cast m,
 },
 
+exfalso,
 have megan := size_of_inv p,
 rw norm_one_iff_unit at p,
 unfold Norm at p,
@@ -551,41 +545,594 @@ have mom := lt_of_lt_of_le' flo h,
 
 rw ← abs_eq_self at johnny,
 rw ← johnny at h,
+rw megan at h,
+--- setup
+have grandpa := lt_of_lt_of_le' mom zero_le_one,
 have gran := le_of_lt (lt_of_lt_of_le' mom zero_le_one),
 rw ← abs_eq_self at gran,
 rw ← gran at mom,
-rw megan at h,
---have damn := inv_le_of_inv_le
-sorry,
+rw ← gran at grandpa,
+clear gran johnny,
+--------
+rw le_inv zero_lt_one grandpa at h,
+rw inv_one at h,
+have terry := lt_of_lt_of_le mom h,
+norm_num at terry,
 },
 cases m,{
 
-  sorry,
+exfalso,
+have megan := size_of_inv p,
+rw norm_one_iff_unit at p,
+unfold Norm at p,
+have flo : (v.z:ℝ) + v.w*rt_2 < -(v.z:ℝ) + v.w*rt_2,{
+apply add_lt_add_right,
+have q : (0:ℝ) < rt_2 := lt_trans zero_lt_one sqrt_2_lb,
+have deborah := neg_lt_neg l,
+rw neg_zero at deborah,
+exact lt_trans l deborah,
 },
--- exfalso,
--- have q : (0:ℝ) ≤ rt_2,{
---   unfold rt_2,
---   exact real.sqrt_nonneg 2,
--- },
--- have mm := le_of_lt m,
--- clear m,
--- have ll := le_of_lt l,
--- clear l,
--- have nob := mul_le_mul_of_nonneg_right mm q,
--- rw zero_mul at nob,
--- have snob := add_le_add ll nob,
--- rw zero_add at snob,
--- have dobby := le_trans h snob,
--- norm_num at dobby,
-sorry,
+have johnny := le_trans zero_le_one h,
+have mom := lt_of_lt_of_le' flo h,
+
+rw ← abs_eq_self at johnny,
+rw ← johnny at h,
+have grandpa := lt_of_lt_of_le' mom zero_le_one,
+have gran := le_of_lt (lt_of_lt_of_le' mom zero_le_one),
+rw ← abs_eq_self at gran,
+rw ← gran at mom,
+rw ← gran at grandpa,
+rw megan at h,
+rw [← abs_neg, neg_add, ← sub_eq_add_neg, neg_neg] at grandpa,
+rw [← abs_neg, neg_add, ← sub_eq_add_neg, neg_neg] at mom,
+rw le_inv zero_lt_one grandpa at h,
+rw inv_one at h,
+have terry := lt_of_lt_of_le mom h,
+norm_num at terry,
+},
+exfalso,
+have q : (0:ℝ) ≤ rt_2,{
+  unfold rt_2,
+  exact real.sqrt_nonneg 2,
+},
+
+have mm := le_of_lt m,
+clear m,
+have ll := le_of_lt l,
+clear l,
+have nob := mul_le_mul_of_nonneg_right mm q,
+rw zero_mul at nob,
+have snob := add_le_add ll nob,
+rw zero_add at snob,
+have dobby := le_trans h snob,
+norm_num at dobby,
 end  
 
+def next_unit : ℤα → ℤα := λ v, (⟨2*v.w - v.z, v.z - v.w⟩:ℤα)
+def f_unit := (⟨1, 1⟩:ℤα)
+def f_unit_inv := (⟨-1, 1⟩:ℤα)
 
-lemma units_are {a:ℤα} (k : is_unit a):
-∃(n : ℕ), a = (⟨1, 1⟩:ℤα)^n ∨ a = -(⟨1, 1⟩:ℤα)^n ∨ a = (⟨-1, 1⟩:ℤα)^n ∨ a = -(⟨-1, 1⟩:ℤα)^n :=
+noncomputable
+def next_unit_ℝ : ℤα → ℝ  := λ v, (2*v.w - v.z) + (v.z - v.w)*rt_2
+
+-- lemma mul_units_is_unit {u v : ℤα} (p : is_unit u) (q : is_unit v) : is_unit ((u*v):ℤα) :=
+-- begin
+-- rw is_unit_iff_exists_inv at p q ⊢,
+-- cases q with a ha,
+-- cases p with b hb,
+-- use a*b,
+-- rw mul_assoc,
+-- nth_rewrite 1 ← mul_assoc,
+-- rw ha,
+-- rw one_mul,
+-- exact hb,
+-- end
+
+lemma f_unit_is_unit : is_unit f_unit :=
+begin
+rw is_unit_iff_exists_inv,
+use (⟨-1, 1⟩:ℤα),
+ring_nf,
+end
+
+lemma unit_expansion (v : ℤα) : v = f_unit * next_unit v :=
+begin
+unfold f_unit next_unit,
+change v = (⟨1*(2 * v.w - v.z) + 2*1*(v.z - v.w), 1*(v.z - v.w) + 1*(2 * v.w - v.z)⟩:ℤα),
+ring_nf,
+ext,
+dsimp,
+refl,
+dsimp,
+refl,
+end
+
+lemma next_unit_is_unit {v : ℤα} (h : is_unit v): is_unit (next_unit v) :=
+begin
+have q := (norm_one_iff_unit v).1 h,
+unfold Norm at q,
+apply (norm_one_iff_unit (next_unit v)).2,
+unfold Norm next_unit,
+dsimp,
+ring_nf,
+rwa abs_sub_comm at q,
+end
+
+lemma inductive_element_ge_one {v : ℤα} (h : is_unit v) (p : 1 + rt_2 ≤ (v.z:ℝ) + v.w*rt_2) :
+1 ≤ (next_unit_ℝ v) :=
+begin
+unfold next_unit_ℝ,
+have q : 0 < rt_2 - 1,{
+  rw lt_sub_iff_add_lt',
+  rw add_zero,
+  exact sqrt_2_lb,
+},
+rw ← mul_le_mul_right q at p,
+ring_nf at p,
+have bob : (2:ℝ) - 1 = 1 := by norm_num,
+rw [rt_2_sq, bob, add_mul, mul_assoc, ← sq, rt_2_sq, ← sub_add_eq_add_sub, mul_comm] at p,
+exact p,
+end
+
+lemma components_ge_zero {v : ℤα} (h : is_unit v) (p : 1 + rt_2 ≤ (v.z:ℝ) + v.w*rt_2) :
+0 < (next_unit v).z ∧ 0 ≤ (next_unit v).w :=
+begin
+have mm := inductive_element_ge_one h p,
+have lucy := next_unit_is_unit h,
+have cindy := pos_units lucy,
+unfold next_unit at cindy,
+dsimp at cindy,
+unfold next_unit_ℝ at mm,
+norm_cast at mm,
+exact cindy mm,
+end
+
+-- lemma dissection_of_unit (v : ℤα): (1 + rt_2) * (next_unit_ℝ v) = (v.z:ℝ) + v.w*rt_2 :=
+-- begin
+-- unfold next_unit_ℝ,
+-- rw [mul_add, mul_sub, sub_mul, mul_sub],
+--   repeat {rw add_mul},
+--   repeat {rw one_mul},
+--   nth_rewrite 2 ← mul_assoc,
+--   nth_rewrite 9 mul_comm,
+--   rw [mul_assoc, ← sq, rt_2_sq],
+--   ring_nf,
+--   rw rt_2_sq,
+--   ring_nf,
+-- end
+
+-- lemma inductive_element_smaller {v : ℤα} (h : is_unit v) (n : 1 + rt_2 ≤ (v.z:ℝ) + v.w*rt_2):
+-- next_unit_ℝ v < (v.z:ℝ) + v.w*rt_2 :=
+-- begin
+-- have q : (0:ℝ) < rt_2 := lt_trans zero_lt_one sqrt_2_lb,
+-- have p := add_lt_add_left q 1,
+-- rw add_zero at p,
+-- have mm := lt_of_lt_of_le zero_lt_one (inductive_element_ge_one h n),
+-- rw ← mul_lt_mul_right mm at p,
+-- rw one_mul at p,
+-- rw dissection_of_unit at p,
+-- exact p,
+-- end
+
+lemma units_ge_f_unit {a b : ℕ} (p : is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) (q : 0 < b) :
+1 + rt_2 ≤ ((a:ℤ):ℝ) + ((b:ℤ):ℝ)*rt_2 :=
+begin
+have alice : 0 ≤ (a:ℤ) := by exact_mod_cast (zero_le a),
+have ashley := unit_not_mul_of_rt_2 p,
+change (a:ℤ) ≠ 0 at ashley, 
+have akon := lt_iff_le_and_ne.2 ⟨alice, ashley.symm⟩,
+have ben : 0 < (b:ℤ) := by exact_mod_cast q,
+rw int.lt_iff_add_one_le at akon ben,
+rw zero_add at akon ben,
+have ben2 : 1 ≤ ((b:ℤ):ℝ) := by exact_mod_cast ben, 
+have akon2 : 1 ≤ ((a:ℤ):ℝ) := by exact_mod_cast akon,
+have jason : (0:ℝ) < rt_2 := lt_trans zero_lt_one sqrt_2_lb,
+rw ← mul_le_mul_right jason at ben2,
+rw one_mul at ben2,
+exact add_le_add akon2 ben2,
+end
+
+lemma inductive_step :
+∀(b:ℕ), (∃(a:ℕ), is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) → (∀(a:ℕ), ((is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) → ∃(n:ℕ), (⟨(a:ℤ),(b:ℤ)⟩:ℤα) = f_unit^n)) :=
+begin
+intro b,
+induction b using nat.strong_induction_on with k hk,
+dsimp at hk,
+
+have baptist := nat.eq_zero_or_pos k,
+cases baptist,{
+  intro h,
+  rw baptist,
+  intros a ha,
+  rw norm_one_iff_unit at ha,
+  unfold Norm at ha,
+  dsimp at ha,
+  nth_rewrite 1 sq at ha,
+  norm_cast at ha,
+  rw [mul_zero, mul_zero, ← nat.cast_sub (zero_le (a^2)), nat.sub_zero] at ha,
+  norm_cast at ha,
+  have john : 1 = 1^2 := by norm_num,
+  nth_rewrite 1 john at ha,
+  rw sq_eq_sq (zero_le a) (zero_le_one) at ha,
+  use 0,
+  rw pow_zero,
+  rw ha,
+  refl,
+},
+
+intro h,
+intros r hr,
+have pastor := unit_expansion (⟨(r:ℤ),(k:ℤ)⟩:ℤα),
+unfold next_unit at pastor,
+dsimp at pastor,
+specialize hk (r-k),
+-----inequality setup
+have gentle := components_ge_zero hr,
+unfold next_unit at gentle,
+dsimp at gentle,
+have holy := gentle (units_ge_f_unit hr baptist),
+have devil := holy.2,
+have devil2 : k ≤ r,{
+  have bb := le_of_sub_nonneg devil,
+  exact_mod_cast bb,
+},
+have preangel : 0 < 2*(k:ℤ) - r := holy.1,
+have angel : r-k < k,{
+  have bbb := lt_of_sub_pos preangel,
+  rw [two_mul, ← sub_lt_iff_lt_add, ← nat.cast_sub devil2] at bbb,
+  exact_mod_cast bbb,
+},
+have angel2 : r ≤ 2*k := by exact_mod_cast le_of_lt (lt_of_sub_pos preangel),
+-----
+have sin := hk angel,
+clear hk angel,
+have god : ∃ (a : ℕ), is_unit (⟨(a:ℤ),((r-k):ℤ)⟩:ℤα),{
+  use 2*k-r,
+  have saint := next_unit_is_unit hr,
+  unfold next_unit at saint,
+  dsimp at saint,
+  norm_cast at saint,
+  rw ← nat.cast_sub devil2,
+  exact saint,
+},
+rw ← nat.cast_sub devil2 at god,
+have hell := sin god,
+clear sin god,
+specialize hell (2*k-r),
+have saint := next_unit_is_unit hr,
+unfold next_unit at saint,
+dsimp at saint,
+norm_cast at saint,
+have satan := hell saint,
+cases satan with n hn,
+use n+1,
+rw pastor,
+norm_cast,
+rw hn,
+rw pow_add f_unit n 1,
+rw mul_comm,
+rw pow_one,
+end
+
+lemma equiv_ℤα (k : ℤα) : (⟨k.z,k.w⟩:ℤα) = k :=
+begin
+ext,
+dsimp,
+refl,
+dsimp,
+refl,
+end
+
+lemma inductive_fallout {v : ℤα} (p : is_unit v) (ha : 0 ≤ v.z) (hb : 0 ≤ v.w) :
+∃(n:ℕ), v = f_unit^n :=
+begin
+have lady := inductive_step (int.nat_abs v.w),
+have trick1 := int.nat_abs_of_nonneg hb,
+have trick2 := int.nat_abs_of_nonneg ha,
+rw trick1 at lady,
+have boy : (∃ (a : ℕ), is_unit (⟨(a:ℤ),v.w⟩:ℤα)), {
+  use int.nat_abs v.z,
+  rw trick2,
+  rw equiv_ℤα v,
+  exact p,
+},
+have logan := lady boy,
+clear lady boy,
+specialize logan (int.nat_abs v.z),
+rw trick2 at logan,
+rw equiv_ℤα v at logan,
+exact logan p,
+end 
+
+lemma f_unit_inv_is_unit : is_unit f_unit_inv :=
+begin
+rw is_unit_iff_exists_inv,
+use f_unit,
+ring_nf,
+end
+
+lemma f_unit_inv_for_real : ∃(m n : ℤαˣ), (m:ℤα) = f_unit ∧ (n:ℤα) = f_unit_inv ∧ n = m⁻¹ :=
+begin
+have h := f_unit_is_unit,
+have g := f_unit_inv_is_unit,
+unfold is_unit at h g,
+cases g with n hn,
+cases h with m hm,
+use m,
+use n,
+split,
+exact hm,
+split,
+exact hn,
+
+apply eq_inv_of_mul_eq_one_left,
+rw units.ext_iff,
+rw units.coe_mul,
+rw hn,
+rw hm,
+ring_nf,
+end
+
+lemma inv_of_rand_unit {v:ℤα} (p : is_unit v) :
+(∃(m n: ℤαˣ), (m:ℤα) = v ∧ (n:ℤα) = (⟨-v.z, v.w⟩:ℤα) ∧ n = m⁻¹) ∨ (∃(m n: ℤαˣ), (m:ℤα) = v ∧ (n:ℤα) = (⟨v.z, -v.w⟩:ℤα) ∧ n = m⁻¹) :=
+begin
+have q := p,
+unfold is_unit at p,
+cases p with m hm,
+have jane : is_unit (⟨-v.z, v.w⟩:ℤα), {
+rw norm_one_iff_unit,
+unfold Norm,
+dsimp,
+rw neg_sq,
+rw norm_one_iff_unit at q,
+unfold Norm at q,
+exact q,
+},
+have bane : is_unit (⟨v.z, -v.w⟩:ℤα), {
+rw norm_one_iff_unit,
+unfold Norm,
+dsimp,
+rw neg_sq,
+rw norm_one_iff_unit at q,
+unfold Norm at q,
+exact q,
+},
+cases jane with r hr,
+cases bane with s hs,
+rw norm_one_iff_unit at q,
+unfold Norm at q,
+have obv : (0:ℤ) ≤ 1 := zero_le_one, 
+rw abs_eq obv at q,
+clear obv,
+cases q,{
+  right,
+  use m,
+  use s,
+  split,
+  exact hm,
+  split,
+  exact hs,
+  apply eq_inv_of_mul_eq_one_left,
+  rw units.ext_iff,
+  rw units.coe_mul,
+  rw hm,
+  rw hs,
+  nth_rewrite 2 ← equiv_ℤα v,
+  change (⟨v.z*v.z + 2*(-v.w)*v.w, v.z*v.w + (-v.w)*v.z⟩:ℤα) = 1,
+  ring_nf,
+  rw q,
+  refl,
+},
+
+  left,
+  use m,
+  use r,
+  split,
+  exact hm,
+  split,
+  exact hr,
+  apply eq_inv_of_mul_eq_one_left,
+  rw units.ext_iff,
+  rw units.coe_mul,
+  rw hm,
+  rw hr,
+  nth_rewrite 2 ← equiv_ℤα v,
+  change (⟨(-v.z)*v.z + 2*v.w*v.w, (-v.z)*v.w + v.w*v.z⟩:ℤα) = 1,
+  ring_nf,
+  rw [← neg_eq_iff_eq_neg, neg_sub', sub_neg_eq_add] at q,
+  rw q,
+  refl,
+end
+
+
+lemma units_are {v:ℤα} (p : is_unit v) :
+∃(n : ℕ), v = (f_unit)^n ∨ v = -(f_unit)^n ∨ v = (f_unit_inv)^n ∨ v = -(f_unit_inv)^n :=
 begin
 
-sorry,
+have hz := le_or_lt 0 v.z,
+have hw := le_or_lt 0 v.w,
+
+cases hz,{
+cases hw,{
+---------------
+have dolphin := inductive_fallout p hz hw,
+cases dolphin with n hn,
+use n,
+left,
+exact hn,
+},
+
+-----------------
+rw ← left.neg_pos_iff at hw,
+have hq := le_of_lt hw,
+clear hw,
+have seal : is_unit (⟨v.z, -v.w⟩:ℤα), {
+rw norm_one_iff_unit,
+unfold Norm,
+dsimp,
+rw neg_sq,
+rw norm_one_iff_unit at p,
+unfold Norm at p,
+exact p,
+},
+have dolphin := inductive_fallout seal hz hq,
+cases dolphin with n hn,
+use n,
+right,
+right,
+
+have whale := inv_of_rand_unit p,
+cases whale,{
+cases whale with r hr,
+cases hr with s hp,
+cases hp with hr hl,
+cases hl with hs hi,
+rw ← neg_inj at hn,
+change (⟨-v.z, -(-v.w)⟩:ℤα) = -f_unit ^ n at hn,
+rw neg_neg at hn,
+rw ← hs at hn,
+rw hi at hn,
+have jelly := f_unit_inv_for_real,
+cases jelly with t ht,
+cases ht with l hbbb,
+cases hbbb with hx hbb,
+cases hbb with hy hb,
+
+rw ← hx at hn,
+have wave : r⁻¹ = -t^n := by exact_mod_cast hn,
+rw inv_eq_iff_eq_inv at wave,
+rw inv_neg at wave,
+rw ← inv_pow at wave,
+rw ← hb at wave,
+have storm : (r:ℤα) = -(l:ℤα)^n := by exact_mod_cast wave,
+rw hr at storm,
+rw hy at storm,
+right,
+exact storm,
+},
+cases whale with r hr,
+cases hr with s hp,
+cases hp with hr hl,
+cases hl with hs hi,
+rw ← hs at hn,
+rw hi at hn,
+have jelly := f_unit_inv_for_real,
+cases jelly with t ht,
+cases ht with l hbbb,
+cases hbbb with hx hbb,
+cases hbb with hy hb,
+rw ← hx at hn,
+have wave : r⁻¹ = t^n := by exact_mod_cast hn,
+rw inv_eq_iff_eq_inv at wave,
+rw ← inv_pow at wave,
+rw ← hb at wave,
+have storm : (r:ℤα) = (l:ℤα)^n := by exact_mod_cast wave,
+rw hr at storm,
+rw hy at storm,
+left,
+exact storm,
+},
+-------------
+cases hw, {
+
+rw ← left.neg_pos_iff at hz,
+have hq := le_of_lt hz,
+clear hz,
+have seal : is_unit (⟨-v.z, v.w⟩:ℤα), {
+rw norm_one_iff_unit,
+unfold Norm,
+dsimp,
+rw neg_sq,
+rw norm_one_iff_unit at p,
+unfold Norm at p,
+exact p,
+},
+have dolphin := inductive_fallout seal hq hw,
+cases dolphin with n hn,
+use n,
+right,
+right,
+
+have whale := inv_of_rand_unit p,
+cases whale,{
+
+cases whale with r hr,
+cases hr with s hp,
+cases hp with hr hl,
+cases hl with hs hi,
+rw ← hs at hn,
+rw hi at hn,
+have jelly := f_unit_inv_for_real,
+cases jelly with t ht,
+cases ht with l hbbb,
+cases hbbb with hx hbb,
+cases hbb with hy hb,
+rw ← hx at hn,
+have wave : r⁻¹ = t^n := by exact_mod_cast hn,
+rw inv_eq_iff_eq_inv at wave,
+rw ← inv_pow at wave,
+rw ← hb at wave,
+have storm : (r:ℤα) = (l:ℤα)^n := by exact_mod_cast wave,
+rw hr at storm,
+rw hy at storm,
+left,
+exact storm,
+},
+
+cases whale with r hr,
+cases hr with s hp,
+cases hp with hr hl,
+cases hl with hs hi,
+rw ← neg_inj at hn,
+change (⟨-(-v.z), -v.w⟩:ℤα) = -f_unit ^ n at hn,
+rw neg_neg at hn,
+rw ← hs at hn,
+rw hi at hn,
+have jelly := f_unit_inv_for_real,
+cases jelly with t ht,
+cases ht with l hbbb,
+cases hbbb with hx hbb,
+cases hbb with hy hb,
+
+rw ← hx at hn,
+have wave : r⁻¹ = -t^n := by exact_mod_cast hn,
+rw inv_eq_iff_eq_inv at wave,
+rw inv_neg at wave,
+rw ← inv_pow at wave,
+rw ← hb at wave,
+have storm : (r:ℤα) = -(l:ℤα)^n := by exact_mod_cast wave,
+rw hr at storm,
+rw hy at storm,
+right,
+exact storm,
+},
+
+-------------
+rw ← left.neg_pos_iff at hz,
+have hu := le_of_lt hz,
+clear hz,
+rw ← left.neg_pos_iff at hw,
+have hq := le_of_lt hw,
+clear hw,
+
+have seal : is_unit (⟨-v.z, -v.w⟩:ℤα), {
+rw norm_one_iff_unit,
+unfold Norm,
+dsimp,
+repeat {rw neg_sq},
+rw norm_one_iff_unit at p,
+unfold Norm at p,
+exact p,
+},
+have dolphin := inductive_fallout seal hu hq,
+cases dolphin with n hn,
+use n,
+right,
+left,
+change -(⟨v.z,v.w⟩:ℤα) = f_unit ^ n at hn,
+rw equiv_ℤα at hn,
+rw ← neg_eq_iff_eq_neg,
+exact hn,
 end
 
 
