@@ -333,27 +333,23 @@ cases hm with j hj,
 by_contra,
 rw ← int.even_iff_not_odd at h,
 cases h with b hb,
-rw hj at hk,
-rw hb at hk,
-rw ← two_mul at hk,
-rw add_comm at hk,
+rw [hj, hb, ← two_mul, add_comm] at hk,
 have p := sub_eq_of_eq_add hk,
-rw mul_assoc at p,
-rw ← mul_sub at p,
-rw mul_comm at p,
+rw [mul_assoc, ← mul_sub, mul_comm] at p,
 have jeff := dvd_of_mul_left_eq (b * j - k) p,
 norm_num at jeff,
 end
 
 include sol
+
 lemma Norm_d_odd : odd (Norm d) :=
 begin
 exact of_dvd_int (x_pow_six_really_odd sol) (Norm_d_dvd_x_six sol),
 end
 
 #eval nat.divisors 8
-
 omit sol
+
 lemma divisors_of_eight {k : ℤ} (h : k ∣ 8) (p : 0 ≤ k): k = 1 ∨ k = 2 ∨ k = 4 ∨ k = 8 :=
 begin
 have hl : (0:ℤ) < 8 := by dec_trivial,
@@ -378,6 +374,7 @@ simp only [int.of_nat_eq_coe, int.coe_nat_bit0, algebra_map.coe_one, eq_self_iff
 end 
 include sol
 
+
 lemma Norm_d_eq_one : Norm d = 1 :=
 begin
 have h := Norm_d_dvd_eight,
@@ -401,6 +398,8 @@ norm_num at p,
 end
 
 omit sol
+
+--Quest to find units begins
 
 lemma norm_one_iff_unit (k : ℤα) : is_unit k ↔ Norm k = 1 :=
 begin
@@ -451,18 +450,18 @@ rw ← sq_lt_sq,
 norm_num,
 end
 
-lemma sqrt_2_ub : rt_2 < 2 :=
-begin
-have p : (0:ℝ) ≤  2 := zero_le_two,
-have q : (0:ℝ) ≤ rt_2,{
-  unfold rt_2,
-  exact real.sqrt_nonneg 2,
-},
-rw ← abs_of_nonneg p,
-rw ← abs_of_nonneg q,
-rw ← sq_lt_sq,
-norm_num,
-end
+-- lemma sqrt_2_ub : rt_2 < 2 :=
+-- begin
+-- have p : (0:ℝ) ≤  2 := zero_le_two,
+-- have q : (0:ℝ) ≤ rt_2,{
+--   unfold rt_2,
+--   exact real.sqrt_nonneg 2,
+-- },
+-- rw ← abs_of_nonneg p,
+-- rw ← abs_of_nonneg q,
+-- rw ← sq_lt_sq,
+-- norm_num,
+-- end
 
 lemma norm_fac (k : ℤα) : (Norm k : ℝ) = |(k.z:ℝ) + k.w*rt_2|*|(k.z:ℝ) - k.w*rt_2| :=
 begin
@@ -593,6 +592,7 @@ have q : (0:ℝ) ≤ rt_2,{
   unfold rt_2,
   exact real.sqrt_nonneg 2,
 },
+
 have mm := le_of_lt m,
 clear m,
 have ll := le_of_lt l,
@@ -611,25 +611,25 @@ def f_unit := (⟨1, 1⟩:ℤα)
 noncomputable
 def next_unit_ℝ : ℤα → ℝ  := λ v, (2*v.w - v.z) + (v.z - v.w)*rt_2
 
-lemma mul_units_is_unit {u v : ℤα} (p : is_unit u) (q : is_unit v) : is_unit ((u*v):ℤα) :=
-begin
-rw is_unit_iff_exists_inv at p q ⊢,
-cases q with a ha,
-cases p with b hb,
-use a*b,
-rw mul_assoc,
-nth_rewrite 1 ← mul_assoc,
-rw ha,
-rw one_mul,
-exact hb,
-end
+-- lemma mul_units_is_unit {u v : ℤα} (p : is_unit u) (q : is_unit v) : is_unit ((u*v):ℤα) :=
+-- begin
+-- rw is_unit_iff_exists_inv at p q ⊢,
+-- cases q with a ha,
+-- cases p with b hb,
+-- use a*b,
+-- rw mul_assoc,
+-- nth_rewrite 1 ← mul_assoc,
+-- rw ha,
+-- rw one_mul,
+-- exact hb,
+-- end
 
-lemma f_unit_is_unit : is_unit f_unit :=
-begin
-rw is_unit_iff_exists_inv,
-use (⟨-1, 1⟩:ℤα),
-ring_nf,
-end
+-- lemma f_unit_is_unit : is_unit f_unit :=
+-- begin
+-- rw is_unit_iff_exists_inv,
+-- use (⟨-1, 1⟩:ℤα),
+-- ring_nf,
+-- end
 
 lemma unit_expansion (v : ℤα) : v = f_unit * next_unit v :=
 begin
@@ -729,7 +729,7 @@ exact add_le_add akon2 ben2,
 end
 
 lemma inductive_step :
-∀(b:ℕ), (∃(a:ℕ), is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) → (∃(a:ℕ), ((is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) ∧ ∃(n:ℕ), (⟨(a:ℤ),(b:ℤ)⟩:ℤα) = f_unit^n)) :=
+∀(b:ℕ), (∃(a:ℕ), is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) → (∀(a:ℕ), ((is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) → ∃(n:ℕ), (⟨(a:ℤ),(b:ℤ)⟩:ℤα) = f_unit^n)) :=
 begin
 intro b,
 induction b using nat.strong_induction_on with k hk,
@@ -739,22 +739,25 @@ have baptist := nat.eq_zero_or_pos k,
 cases baptist,{
   intro h,
   rw baptist,
-  use 1,
-  split,
-  rw norm_one_iff_unit,
-  unfold Norm,
-  dsimp,
-  norm_num,
+  intros a ha,
+  rw norm_one_iff_unit at ha,
+  unfold Norm at ha,
+  dsimp at ha,
+  nth_rewrite 1 sq at ha,
+  norm_cast at ha,
+  rw [mul_zero, mul_zero, ← nat.cast_sub (zero_le (a^2)), nat.sub_zero] at ha,
+  norm_cast at ha,
+  have john : 1 = 1^2 := by norm_num,
+  nth_rewrite 1 john at ha,
+  rw sq_eq_sq (zero_le a) (zero_le_one) at ha,
   use 0,
   rw pow_zero,
+  rw ha,
   refl,
 },
 
 intro h,
-cases h with r hr,
-use r,
-split,
-exact hr,
+intros r hr,
 have pastor := unit_expansion (⟨(r:ℤ),(k:ℤ)⟩:ℤα),
 unfold next_unit at pastor,
 dsimp at pastor,
@@ -784,30 +787,21 @@ have god : ∃ (a : ℕ), is_unit (⟨(a:ℤ),((r-k):ℤ)⟩:ℤα),{
   have saint := next_unit_is_unit hr,
   unfold next_unit at saint,
   dsimp at saint,
-  rw nat.cast_sub angel2,
-  rw nat.cast_mul,
+  norm_cast at saint,
+  rw ← nat.cast_sub devil2,
   exact saint,
 },
 rw ← nat.cast_sub devil2 at god,
 have hell := sin god,
-clear sin,
-cases hell with t ht,
-cases ht with hp hq,
-cases hq with n hn,
+clear sin god,
+specialize hell (2*k-r),
+have saint := next_unit_is_unit hr,
+unfold next_unit at saint,
+dsimp at saint,
+norm_cast at saint,
+have satan := hell saint,
+cases satan with n hn,
 use n+1,
-have cloud : t = 2*k-r,{
-  -- rw norm_one_iff_unit at hp,
-  -- unfold Norm at hp,
-  -- dsimp at hp,
-  -- have obv : (0:ℤ) ≤ 1 := zero_le_one,
-  -- rw abs_eq obv at hp,
-  -- cases hp,{
-
-  --   sorry,
-  -- },
-  sorry,
-},
-rw cloud at hn,
 rw pastor,
 norm_cast,
 rw hn,
@@ -815,6 +809,34 @@ rw pow_add f_unit n 1,
 rw mul_comm,
 rw pow_one,
 end
+
+lemma equiv_ℤα (k : ℤα) : (⟨k.z,k.w⟩:ℤα) = k :=
+begin
+ext,
+dsimp,
+refl,
+dsimp,
+refl,
+end
+
+lemma inductive_fallout {v : ℤα} (p : is_unit v) (ha : 0 ≤ v.z) (hb : 0 ≤ v.w) :
+∃(n:ℕ), v = f_unit^n :=
+begin
+have logan := inductive_step (int.nat_abs v.w),
+have trick1 := int.nat_abs_of_nonneg hb,
+have trick2 := int.nat_abs_of_nonneg ha,
+rw trick1 at logan,
+have lady : (∃ (a : ℕ), is_unit (⟨(a:ℤ),v.w⟩:ℤα)), {
+  use int.nat_abs v.z,
+  rw trick2,
+  rw equiv_ℤα v,
+  exact p,
+},
+have boy := logan lady,
+clear logan lady,
+
+sorry,
+end 
 
 
 lemma units_are {a:ℤα} (h : is_unit a) :
