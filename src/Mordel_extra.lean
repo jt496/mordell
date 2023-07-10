@@ -545,12 +545,15 @@ have mom := lt_of_lt_of_le' flo h,
 
 rw ← abs_eq_self at johnny,
 rw ← johnny at h,
+rw megan at h,
+--- setup
 have grandpa := lt_of_lt_of_le' mom zero_le_one,
 have gran := le_of_lt (lt_of_lt_of_le' mom zero_le_one),
 rw ← abs_eq_self at gran,
 rw ← gran at mom,
 rw ← gran at grandpa,
-rw megan at h,
+clear gran johnny,
+--------
 rw le_inv zero_lt_one grandpa at h,
 rw inv_one at h,
 have terry := lt_of_lt_of_le mom h,
