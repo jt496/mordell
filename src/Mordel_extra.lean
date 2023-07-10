@@ -822,20 +822,22 @@ end
 lemma inductive_fallout {v : ℤα} (p : is_unit v) (ha : 0 ≤ v.z) (hb : 0 ≤ v.w) :
 ∃(n:ℕ), v = f_unit^n :=
 begin
-have logan := inductive_step (int.nat_abs v.w),
+have lady := inductive_step (int.nat_abs v.w),
 have trick1 := int.nat_abs_of_nonneg hb,
 have trick2 := int.nat_abs_of_nonneg ha,
-rw trick1 at logan,
-have lady : (∃ (a : ℕ), is_unit (⟨(a:ℤ),v.w⟩:ℤα)), {
+rw trick1 at lady,
+have boy : (∃ (a : ℕ), is_unit (⟨(a:ℤ),v.w⟩:ℤα)), {
   use int.nat_abs v.z,
   rw trick2,
   rw equiv_ℤα v,
   exact p,
 },
-have boy := logan lady,
-clear logan lady,
-
-sorry,
+have logan := lady boy,
+clear lady boy,
+specialize logan (int.nat_abs v.z),
+rw trick2 at logan,
+rw equiv_ℤα v at logan,
+exact logan p,
 end 
 
 
