@@ -833,7 +833,7 @@ open euclidean_domain
 /- Here is Bezout's theorem for ℤα. -/
 #check euclidean_domain.gcd_eq_gcd_ab a b
 
-z
+
 
 
 
