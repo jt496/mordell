@@ -833,30 +833,7 @@ open euclidean_domain
 /- Here is Bezout's theorem for ℤα. -/
 #check euclidean_domain.gcd_eq_gcd_ab a b
 
-/- Alternatively, we can prove it ourselves. -/
-theorem Bezout (a b : ℤα) :
-  ∃ h k : ℤα , h*a + k*b = gcd a b :=
-begin
-  apply gcd.induction a b,
-  {
-    intro a,
-    use 0,
-    use 1,
-    rw gcd_zero_left a,
-    rw [_root_.mul_zero,_root_.zero_add,_root_.one_mul],
-  },
-  {
-    intros a b ha hab,
-    rw gcd_val,
-    rcases hab with ⟨ r,  s, hrs⟩,
-    use s - r * (b/a),
-    use r,
-    rw ← hrs, clear hrs,
-    have := div_add_mod b a,
-    nth_rewrite 1 ← this,
-    ring,
-  }
-end
+z
 
 
 
