@@ -649,6 +649,8 @@ end
 
 lemma next_unit_is_unit {v : ℤα} (h : is_unit v): is_unit (next_unit v) :=
 begin
+  -- apply is_unit_of_mul_is_unit_left
+
 have q := (norm_one_iff_unit v).1 h,
 unfold Norm at q,
 apply (norm_one_iff_unit (next_unit v)).2,
@@ -714,7 +716,7 @@ end
 -- exact p,
 -- end
 
-lemma units_ge_f_unit {a b : ℕ} (p : is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) (q : 0 < b) :
+lemma units_ge_f_unit {a b : ℕ} (p : is_unit (⟨a,b⟩:ℤα)) (q : 0 < b) :
 1 + rt_2 ≤ ((a:ℤ):ℝ) + ((b:ℤ):ℝ)*rt_2 :=
 begin
 have alice : 0 ≤ (a:ℤ) := by exact_mod_cast (zero_le a),
@@ -732,8 +734,15 @@ rw one_mul at ben2,
 exact add_le_add akon2 ben2,
 end
 
+lemma inductive_step' (a b:ℕ) (h : is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) :
+  ∃(n:ℕ), (⟨(a:ℤ),(b:ℤ)⟩:ℤα) = f_unit^n :=
+sorry
+
+
+
 lemma inductive_step :
-∀(b:ℕ), (∃(a:ℕ), is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) → (∀(a:ℕ), ((is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) → ∃(n:ℕ), (⟨(a:ℤ),(b:ℤ)⟩:ℤα) = f_unit^n)) :=
+∀(b:ℕ), (∃(a:ℕ), is_unit (⟨(a:ℤ),(b:ℤ)⟩:ℤα)) →
+  (∀(a':ℕ), ((is_unit (⟨(a':ℤ),(b:ℤ)⟩:ℤα)) → ∃(n:ℕ), (⟨(a':ℤ),(b:ℤ)⟩:ℤα) = f_unit^n)) :=
 begin
 intro b,
 induction b using nat.strong_induction_on with k hk,
@@ -944,9 +953,21 @@ cases q,{
   refl,
 end
 
+def f_unit' : (ℤα)ˣ := ⟨f_unit, f_unit_inv,
+begin
+  ext;
+  dec_trivial,
+end,
+begin
+  ext; dec_trivial,
+end ⟩
+
+lemma units_are' {v:(ℤα)ˣ} :
+∃(n : ℤ), v = ((f_unit')^n : (ℤα)ˣ) ∨ v = (-(f_unit')^n : (ℤα)ˣ) :=
+sorry
 
 lemma units_are {v:ℤα} (p : is_unit v) :
-∃(n : ℕ), v = (f_unit)^n ∨ v = -(f_unit)^n ∨ v = (f_unit_inv)^n ∨ v = -(f_unit_inv)^n :=
+∃(n : ℕ), v = (f_unit')^n ∨ v = -(f_unit')^n ∨ v = (f_unit_inv)^n ∨ v = -(f_unit_inv)^n :=
 begin
 
 have hz := le_or_lt 0 v.z,
@@ -982,11 +1003,12 @@ right,
 right,
 
 have whale := inv_of_rand_unit p,
-cases whale,{
-cases whale with r hr,
-cases hr with s hp,
-cases hp with hr hl,
-cases hl with hs hi,
+obtain (⟨r,s,hr,hs,hi⟩ | ⟨r,s,hr,hs,hi⟩) := whale,
+-- cases whale,{
+-- cases whale with r hr,
+-- cases hr with s hp,
+-- cases hp with hr hl,
+-- cases hl with hs hi,
 rw ← neg_inj at hn,
 change (⟨-v.z, -(-v.w)⟩:ℤα) = -f_unit ^ n at hn,
 rw neg_neg at hn,
@@ -1009,11 +1031,11 @@ rw hr at storm,
 rw hy at storm,
 right,
 exact storm,
-},
-cases whale with r hr,
-cases hr with s hp,
-cases hp with hr hl,
-cases hl with hs hi,
+
+-- cases whale with r hr,
+-- cases hr with s hp,
+-- cases hp with hr hl,
+-- cases hl with hs hi,
 rw ← hs at hn,
 rw hi at hn,
 have jelly := f_unit_inv_for_real,
@@ -1135,6 +1157,28 @@ rw ← neg_eq_iff_eq_neg,
 exact hn,
 end
 
+
+#check int.mod_nonneg
+
+lemma unitsdkhfaglhg ( a : (ℤα)ˣ) (ha : is_unit (a:ℤα)):
+  ∃ b : (ℤα)ˣ, a = b^3 ∨ a = f_unit' * b^3 ∨ a = f_unit'⁻¹ * b^3 :=
+begin
+  have := @units_are' a,
+  obtain ⟨n, hn⟩ := this,
+  have := int.div_add_mod n 3,
+  have lower := int.mod_nonneg n (by dec_trivial : (3:ℤ) ≠0 ),
+  have upper := int.mod_lt_of_pos n (by dec_trivial : (3:ℤ) > 0 ),
+  interval_cases using lower upper,
+  cases hn,
+  use f_unit'^(n/3),
+  rw [h,add_zero] at this,
+  left,
+  rw [←zpow_of_nat, ←zpow_mul, mul_comm],
+  rw [int.of_nat_eq_coe],
+  norm_cast,
+  rw [this,hn],
+
+end
 
 
 end mordell

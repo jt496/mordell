@@ -99,8 +99,11 @@ begin
  },
  end
 
+
+
 instance ℤα_repr : has_repr ℤα :=
 { repr := repr }
+#eval (⟨ 1,0,-1⟩ : ℤα)
 
 /-- Defining addition, multiplication and other things needed for rings-/
 
@@ -317,10 +320,21 @@ instance is_ring : comm_ring ℤα :=
   int_cast_neg_succ_of_nat := my_int_cast_neg_succ_of_nat,
 }
 
---#eval α^3
---#eval α^4
+#eval α^3
+#eval α^4
 
---def R : comm_ring ℤα := {!}
+
+def unit : (ℤα)ˣ := ⟨ -1 - 3*α - α^2 , 25 + 13 * α + 5 * α^2, by ext; dec_trivial, by ext; dec_trivial ⟩
+
+lemma units_are  (a : (ℤα)ˣ) : ∃n : ℤ ,
+  a = unit^n ∨ a = - unit^n :=
+  sorry
+
+theorem units (a : (ℤα)ˣ) (h : a.val.h = 0) :
+  a = 1 ∨ a = -1 :=
+  sorry
+
+-- def R : comm_ring ℤα := {!}
 
 
 
