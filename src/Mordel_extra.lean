@@ -1177,6 +1177,9 @@ begin
   rw [int.of_nat_eq_coe],
   norm_cast,
   rw [this,hn],
+  sorry,
+  sorry,
+  sorry,
 
 end
 
