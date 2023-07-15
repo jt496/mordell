@@ -106,16 +106,11 @@ rw p at h,
 exact h,
 end
 
-lemma y_mod_eight (s:ℤ) (h : y % 8 = s) : ∃(k:ℤ), y = 8*k + s :=
+lemma mod_equiv {n:ℤ} {k:ℤ} {s:ℤ} (h : n % k = s) : ∃(m:ℤ), n = k*m + s :=
 begin
-have q := int.dvd_sub_of_mod_eq h,
-cases q with l lh,
+obtain ⟨l, lh⟩ := int.dvd_sub_of_mod_eq h,
 use l,
-rw  ← add_right_inj (s:ℤ) at lh,
-rw add_comm (s:ℤ) (y-s) at lh,
-rw add_comm (s:ℤ) (8*l) at lh,
-rw sub_add_cancel at lh,
-exact lh,
+exact eq_add_of_sub_eq lh,
 end 
 
 ---------------------------------------------
@@ -123,7 +118,7 @@ end
 
 lemma y_eq_zero_mod_eight (h : 8 ∣ y^2 - 2) (p : y % 8 = 0) : false :=
 begin
-have t := y_mod_eight 0 p,
+have t := mod_equiv p,
 cases t with k hk,
 rw hk at h,
 ring_nf at h,
@@ -139,7 +134,7 @@ end
 
 lemma y_eq_one_mod_eight (h : 8 ∣ y^2 - 2) (p : y % 8 = 1) : false :=
 begin
-have t := y_mod_eight 1 p,
+have t := mod_equiv p,
 cases t with k hk,
 rw hk at h,
 ring_nf at h,
@@ -155,7 +150,7 @@ end
 
 lemma y_eq_two_mod_eight (h : 8 ∣ y^2 - 2) (p : y % 8 = 2) : false :=
 begin
-have t := y_mod_eight 2 p,
+have t := mod_equiv p,
 cases t with k hk,
 rw hk at h,
 ring_nf at h,
@@ -169,7 +164,7 @@ end
 
 lemma y_eq_three_mod_eight (h : 8 ∣ y^2 - 2) (p : y % 8 = 3) : false :=
 begin
-have t := y_mod_eight 3 p,
+have t := mod_equiv p,
 cases t with k hk,
 rw hk at h,
 ring_nf at h,
@@ -183,7 +178,7 @@ end
 
 lemma y_eq_four_mod_eight (h : 8 ∣ y^2 - 2) (p : y % 8 = 4) : false :=
 begin
-have t := y_mod_eight 4 p,
+have t := mod_equiv p,
 cases t with k hk,
 rw hk at h,
 ring_nf at h,
@@ -197,7 +192,7 @@ end
 
 lemma y_eq_five_mod_eight (h : 8 ∣ y^2 - 2) (p : y % 8 = 5) : false :=
 begin
-have t := y_mod_eight 5 p,
+have t := mod_equiv p,
 cases t with k hk,
 rw hk at h,
 ring_nf at h,
@@ -214,7 +209,7 @@ end
 
 lemma y_eq_six_mod_eight (h : 8 ∣ y^2 - 2) (p : y % 8 = 6) : false :=
 begin
-have t := y_mod_eight 6 p,
+have t := mod_equiv p,
 cases t with k hk,
 rw hk at h,
 ring_nf at h,
@@ -231,7 +226,7 @@ end
 
 lemma y_eq_seven_mod_eight (h : 8 ∣ y^2 - 2) (p : y % 8 = 7) : false :=
 begin
-have t := y_mod_eight 7 p,
+have t := mod_equiv p,
 cases t with k hk,
 rw hk at h,
 ring_nf at h,
@@ -962,7 +957,7 @@ begin
   ext; dec_trivial,
 end ⟩
 
-lemma units_are' {v:(ℤα)ˣ} :
+lemma units_are' (v:(ℤα)ˣ) :
 ∃(n : ℤ), v = ((f_unit')^n : (ℤα)ˣ) ∨ v = (-(f_unit')^n : (ℤα)ˣ) :=
 sorry
 
@@ -1004,11 +999,6 @@ right,
 
 have whale := inv_of_rand_unit p,
 obtain (⟨r,s,hr,hs,hi⟩ | ⟨r,s,hr,hs,hi⟩) := whale,
--- cases whale,{
--- cases whale with r hr,
--- cases hr with s hp,
--- cases hp with hr hl,
--- cases hl with hs hi,
 rw ← neg_inj at hn,
 change (⟨-v.z, -(-v.w)⟩:ℤα) = -f_unit ^ n at hn,
 rw neg_neg at hn,
@@ -1031,11 +1021,6 @@ rw hr at storm,
 rw hy at storm,
 right,
 exact storm,
-
--- cases whale with r hr,
--- cases hr with s hp,
--- cases hp with hr hl,
--- cases hl with hs hi,
 rw ← hs at hn,
 rw hi at hn,
 have jelly := f_unit_inv_for_real,
@@ -1076,12 +1061,7 @@ right,
 right,
 
 have whale := inv_of_rand_unit p,
-cases whale,{
-
-cases whale with r hr,
-cases hr with s hp,
-cases hp with hr hl,
-cases hl with hs hi,
+obtain (⟨r,s,hr,hs,hi⟩ | ⟨r,s,hr,hs,hi⟩) := whale,
 rw ← hs at hn,
 rw hi at hn,
 have jelly := f_unit_inv_for_real,
@@ -1099,12 +1079,6 @@ rw hr at storm,
 rw hy at storm,
 left,
 exact storm,
-},
-
-cases whale with r hr,
-cases hr with s hp,
-cases hp with hr hl,
-cases hl with hs hi,
 rw ← neg_inj at hn,
 change (⟨-(-v.z), -v.w⟩:ℤα) = -f_unit ^ n at hn,
 rw neg_neg at hn,
@@ -1157,29 +1131,90 @@ rw ← neg_eq_iff_eq_neg,
 exact hn,
 end
 
-
-#check int.mod_nonneg
-
-lemma unitsdkhfaglhg ( a : (ℤα)ˣ) (ha : is_unit (a:ℤα)):
+lemma unit_assoc_cube (a : (ℤα)ˣ) :
   ∃ b : (ℤα)ˣ, a = b^3 ∨ a = f_unit' * b^3 ∨ a = f_unit'⁻¹ * b^3 :=
 begin
-  have := @units_are' a,
-  obtain ⟨n, hn⟩ := this,
-  have := int.div_add_mod n 3,
+  have kettle := units_are' a,
+  obtain ⟨n, hn⟩ := kettle,
+  have stove := int.div_add_mod n 3,
   have lower := int.mod_nonneg n (by dec_trivial : (3:ℤ) ≠0 ),
   have upper := int.mod_lt_of_pos n (by dec_trivial : (3:ℤ) > 0 ),
+  have bowl : (-1:(ℤα)ˣ)^3 = -1, {
+    rw [pow_three, ← sq, neg_one_sq, mul_one],
+  },
   interval_cases using lower upper,
-  cases hn,
+ 
+  cases hn, {
   use f_unit'^(n/3),
-  rw [h,add_zero] at this,
+  rw [h,add_zero] at stove,
   left,
-  rw [←zpow_of_nat, ←zpow_mul, mul_comm],
-  rw [int.of_nat_eq_coe],
-  norm_cast,
-  rw [this,hn],
-  sorry,
-  sorry,
-  sorry,
+  rw [←zpow_of_nat, ←zpow_mul, mul_comm, int.of_nat_eq_coe, int.coe_nat_bit1, algebra_map.coe_one, stove, hn],
+  },
+
+  {
+  use -f_unit'^(n/3),
+  rw [h,add_zero] at stove,
+  left,
+  rw neg_pow,
+  nth_rewrite 1 ← zpow_of_nat,
+  rw ← zpow_mul,
+  nth_rewrite 1 mul_comm,
+  rw [int.of_nat_eq_coe, int.coe_nat_bit1, algebra_map.coe_one, stove, hn, bowl, neg_one_mul],
+  },
+
+  cases hn,
+  {
+  use f_unit'^(n/3),
+  right,
+  left,
+  rw h at stove,
+  rw [← zpow_of_nat, ← zpow_mul],
+  nth_rewrite 1 mul_comm,
+  rw [int.of_nat_eq_coe, int.coe_nat_bit1, algebra_map.coe_one, eq_sub_of_add_eq stove, mul_comm, ← zpow_add_one f_unit' (n-1), sub_add_cancel],
+  exact hn,
+  },
+
+  {
+  use -f_unit'^(n/3),
+  right,
+  left,
+  rw h at stove,
+  rw neg_pow,
+  nth_rewrite 1 ← zpow_of_nat,
+  rw ← zpow_mul,
+  nth_rewrite 2 mul_comm,
+  rw [int.of_nat_eq_coe, int.coe_nat_bit1, algebra_map.coe_one, eq_sub_of_add_eq stove, bowl, ← mul_assoc],
+  nth_rewrite 1 mul_comm,
+  rw [mul_assoc, neg_one_mul, mul_comm, ← zpow_add_one f_unit' (n-1), sub_add_cancel],
+  exact hn,
+  },
+  
+  cases hn,{
+  use f_unit'^(n/3+1),
+  right,
+  right,
+  rw h at stove,
+  rw [← zpow_of_nat, ← zpow_mul],
+  nth_rewrite 1 mul_comm,
+  rw [int.of_nat_eq_coe, int.coe_nat_bit1, algebra_map.coe_one, mul_add, mul_one, eq_sub_of_add_eq stove, add_comm_sub, ← zpow_neg_one, ← zpow_add],
+  norm_num,
+  exact hn,
+  },
+
+  use -f_unit'^(n/3+1),
+  right,
+  right,
+  rw h at stove,
+  rw neg_pow,
+  nth_rewrite 1 ← zpow_of_nat,
+  rw ← zpow_mul,
+  nth_rewrite 2 mul_comm,
+  rw [int.of_nat_eq_coe, int.coe_nat_bit1, algebra_map.coe_one, mul_add,
+  mul_one, eq_sub_of_add_eq stove, add_comm_sub, ← zpow_neg_one, bowl, ← mul_assoc],
+  nth_rewrite 1 mul_comm,
+  rw [mul_assoc, neg_one_mul, ← zpow_add],
+  norm_num,
+  exact hn,
 
 end
 
