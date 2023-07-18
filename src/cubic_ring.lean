@@ -327,6 +327,7 @@ instance is_ring : comm_ring ℤθ :=
 
 def unit : (ℤθ)ˣ := ⟨ -1 - 3*θ - θ^2 , 25 + 13 * θ + 5 * θ^2, by ext; dec_trivial, by ext; dec_trivial ⟩
 
+--this is to be left for later
 lemma units_are  (a : (ℤθ)ˣ) : ∃n : ℤ ,
   a = unit^n ∨ a = - unit^n :=
   sorry

@@ -432,6 +432,15 @@ rw abs_eq at h,
 exact zero_le_one,
 end
 
+include sol
+lemma factors_coprime : is_coprime ((y:ℤα)+α) ((y:ℤα)-α) :=
+begin
+ rw ← euclidean_domain.gcd_is_unit_iff,
+ rw norm_one_iff_unit,
+ exact Norm_d_eq_one sol,
+end
+omit sol
+
 lemma sqrt_2_lb : (1:ℝ) < rt_2 :=
 begin
 have p : (0:ℝ) ≤  1 := zero_le_one,
@@ -1218,6 +1227,119 @@ begin
 
 end
 
+include sol
+lemma descent : ∃(k : ℤα), associated (k^3) ((y:ℤα)+α) :=
+begin
+have h : ((y:ℤα)+α)*(y-α) = x^3,{
+rw ← my_factorization,
+symmetry,
+norm_cast,
+ext,
+exact sol,
+refl,
+},
+exact exists_associated_pow_of_mul_eq_pow' (factors_coprime sol) h,
+end
+
+lemma descent_pro : ∃(g : ℤα), (((y:ℤα)+α) = (g^3) ∨ ((y:ℤα)+α) = f_unit'*(g^3)) ∨ ((y:ℤα)+α) = ((f_unit'.inv):ℤα) * (g^3) :=
+begin
+have chevy := descent sol,
+have ford := unit_assoc_cube,
+cases chevy with k hk,
+unfold associated at hk,
+cases hk with t ht,
+specialize ford t,
+cases ford with f hf,
+cases hf with d hd,
+{
+  rw d at ht,
+  rw units.coe_pow at ht,
+  rw ← mul_pow at ht,
+  use k*(f:ℤα),
+  left,left,
+  symmetry,
+  exact ht,
+},
+cases hd with hj hb,
+{
+  rw [hj, units.coe_mul, units.coe_pow, mul_comm, mul_assoc, ← mul_pow] at ht,
+  use k*(f:ℤα),
+  left, right,
+  rw ← ht,
+  nth_rewrite 1 mul_comm,
+},
+rw [hb, units.coe_mul, units.coe_pow, mul_comm, mul_assoc, ← mul_pow] at ht,
+use k*(f:ℤα),
+right,
+rw ← ht,
+nth_rewrite 1 mul_comm,
+refl, --what is with the inv notation?
+end
+omit sol
+
+lemma element_cubed (g : ℤα) : g^3 = ⟨g.z^3 + 6*g.z*g.w^2, 3*g.z^2*g.w + 2*g.w^3⟩ :=
+begin
+rw pow_three,
+rw mul_mule_1 g g,
+nth_rewrite 0 ← equiv_ℤα g, 
+rw mul_mule_2,
+ext,
+ring_nf, ring_nf,
+end 
+
+lemma descent_pro_1_no_sol : ¬(∃(g : ℤα), ((y:ℤα)+α) = (g^3)) :=
+begin
+by_contra,
+cases h with g hg,
+change (⟨y+0, 0+1⟩:ℤα)= g^3 at hg,
+rw [ zero_add, add_zero] at hg,
+rw element_cubed at hg,
+ring_nf at hg,
+cases hg with hf hv,
+ring_nf at hv,
+have q : (1:ℤ) ≠ 0 := by dec_trivial,
+have p : g.w ∣ 1,
+ { 
+  use 2 * g.w ^ 2 + 3 * g.z ^ 2,
+  rw mul_comm,
+  exact hv,
+ },
+have g : (0 ≤ g.w) ∨ (0 ≤ -g.w), 
+{
+  by_contra,
+  rw not_or_distrib at h,
+  cases h with f hf,
+  apply hf,
+  linarith,
+},
+cases g with t ht,
+have q := int.eq_one_of_dvd_one t p,
+{
+  rw [q, mul_one, sq, mul_one, mul_one] at hv,
+  have k := sub_eq_of_eq_add' hv,
+  rw (by dec_trivial : (1:ℤ) - 2 = -1) at k,
+  have j : (3:ℤ) ∣ 1,
+  {
+    use (-(g.z^2)),
+    rw mul_neg,
+    rw ← neg_eq_iff_eq_neg,
+    exact k,
+  },
+  norm_num at j,
+},
+have b := has_dvd.dvd.neg_left p,
+have q := int.eq_one_of_dvd_one ht b,
+rw neg_eq_iff_eq_neg at q,
+rw [q, neg_one_sq, mul_one, mul_neg_one, neg_add] at hv,
+have k := sub_eq_of_eq_add' hv,
+rw [sub_neg_eq_add, (by dec_trivial : (1:ℤ) + 2 = 3), mul_comm, ← neg_mul] at k,
+nth_rewrite 0 ← one_mul (3:ℤ) at k, 
+rw mul_left_inj' (by dec_trivial : (3:ℤ) ≠ 0) at k,
+rw ← neg_eq_iff_eq_neg at k,
+have d := sq_nonneg (g.z:ℤ),
+rw ← k at d,
+norm_num at d,
+end
 
 end mordell
 end ℤα 

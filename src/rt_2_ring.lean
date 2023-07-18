@@ -271,6 +271,17 @@ instance is_ring : comm_ring ℤα :=
 
 --#eval α^3
 
+--how to use defs as lemmas?
+lemma mul_mule_1 (a b : ℤα) : a*b = (⟨ a.z*b.z + 2*a.w*b.w, a.z*b.w + a.w*b.z⟩:ℤα) :=
+begin
+refl,
+end
+
+lemma mul_mule_2 {a b c d : ℤ} : (⟨a,b⟩:ℤα)*⟨c,d⟩ = (⟨ a*c + 2*b*d, a*d + b*c⟩:ℤα) :=
+begin
+refl,
+end
+
 open real int
 
 @[reducible]
