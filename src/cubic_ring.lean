@@ -376,12 +376,64 @@ end
 --this is to be left for later
 lemma units_are  (a : (ℤθ)ˣ) : ∃n : ℤ ,
   a = unit^n ∨ a = - unit^n :=
-  sorry
+  begin
+  sorry,
+  end
+
+--The usual maths definition for y % 3 = s
+lemma y_mod_three (y:ℤ) (s:ℤ) (h : y % 3 = s) : ∃(k:ℤ), y = 3*k + s :=
+begin
+have q := int.dvd_sub_of_mod_eq h,
+cases q with l lh,
+use l,
+rw  ← add_right_inj (s:ℤ) at lh,
+rw add_comm (s:ℤ) (y-s) at lh,
+rw add_comm (s:ℤ) (3*l) at lh,
+rw sub_add_cancel at lh,
+exact lh,
+end 
+
+lemma unit_pow_zero_mod_three (n : ℤ) (w : n % (3:ℤ) = 0) : (((unit^n):ℤθ)).f % 3 = 1 ∧ (((unit^n):ℤθ)).g % 3 = 0 ∧ (((unit^n):ℤθ)).h % 3 = 0 :=
+begin
+sorry,
+end
 
 theorem units (a : (ℤθ)ˣ) (h : a.val.h = 0) :
   a = 1 ∨ a = -1 :=
   begin
-  sorry,
+  have l : ∃n : ℤ, a = unit^n ∨ a = -unit^n := units_are a,
+  cases l with t ht,
+  have stove := int.div_add_mod t 3,
+  have lower := int.mod_nonneg t (by dec_trivial : (3:ℤ) ≠0 ),
+  have upper := int.mod_lt_of_pos t (by dec_trivial : (3:ℤ) > 0 ),
+  interval_cases using lower upper,
+  clear stove lower upper,
+  {
+   cases ht with hf hd,
+   {
+    have r := y_mod_three t 0 h_1,
+    cases r with j hj,
+    rw add_zero at hj,
+    sorry,
+   },
+   sorry,
+  },
+  {
+   cases ht with hf hd,
+   {
+
+    sorry,
+   },
+   sorry,
+  },
+  {
+   cases ht with hf hd,
+   {
+
+    sorry,
+   },
+   sorry,
+  },
   end
 
 
