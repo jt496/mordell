@@ -10,6 +10,9 @@ import
 
 open_locale classical
 
+--set_option profiler true
+
+
 --We will be considering cubic integers of the form `x+y*θ+z*(θ^2)`, where θ is the
 --only real root of the cuic equation f(x) = x^3 + 3*(x^2) + 6*x + 2.
 --and `x y z : ℤ`. We shall write `ℤθ` for the Type of these integers,
@@ -304,9 +307,7 @@ instance is_ring : comm_ring ℤθ :=
   left_distrib := my_left_distrib,
   right_distrib := my_right_distrib,
   mul_comm := my_mul_comm,
-  --Below comments were for rt_7 ring. Is this even a PID?
-  --If the below lemmas are commented out, suddenly lean can infer that
-  --ℤθ is a PID again.
+
   zsmul := zsmul,
   zsmul_zero' := my_zsmul_zero',
   zsmul_succ' := my_zsmul_succ',
@@ -324,8 +325,53 @@ instance is_ring : comm_ring ℤθ :=
 #eval θ^3
 #eval θ^4
 
+def Norm : ℤθ → ℤ := λ k, | k.f^3 - 2*k.g^3 + 4*k.h^3 - 3*k.f^2*k.g - 3*k.f^2*k.h + 6*k.f*k.g^2 + 6*k.g^2*k.h + 24*k.f*k.h^2 - 12*k.g*k.h^2 - 12*k.f*k.g*k.h |
 
 def unit : (ℤθ)ˣ := ⟨ -1 - 3*θ - θ^2 , 25 + 13 * θ + 5 * θ^2, by ext; dec_trivial, by ext; dec_trivial ⟩
+
+lemma simp_norm (a b : ℤ) : Norm (⟨a, -b, 0⟩:ℤθ) = |a^3 + 3*a^2*b + 6*a*b^2 + 2*b^3| :=
+begin
+unfold Norm,
+dsimp,
+ring_nf,
+end
+
+lemma mul_mule_3 (a b : ℤθ) : a*b = (⟨ a.f*b.f + 6*a.h*b.h - 2*a.g*b.h - 2*a.h*b.g, a.f*b.g + a.g*b.f + 16*a.h*b.h - 6*a.g*b.h - 6*a.h*b.g, a.f*b.h + a.h*b.f + a.g*b.g + 3*a.h*b.h - 3*a.g*b.h - 3*a.h*b.g⟩:ℤθ) :=
+begin
+refl,
+end
+
+lemma norm_mul (r s : ℤθ) : Norm r * Norm s = Norm (r*s) :=
+begin
+-- unfold Norm,
+-- rw mul_mule_3 r s,
+-- dsimp,
+-- rw ← abs_mul,
+-- ring_nf,
+sorry,
+end
+
+lemma Norm_divides {p a : ℤθ} (h : p ∣ a) : (Norm p ∣ Norm a):=
+begin
+cases h with n hn,
+use Norm n,
+rw norm_mul p n,
+rw hn,
+end
+
+lemma norm_one_if_unit (k : ℤθ) : is_unit k → Norm k = 1 :=
+begin
+intro h,
+rw is_unit_iff_exists_inv at h,
+have p : ∃ (b : ℤθ), 1 = k * b := by tauto,
+change k ∣ 1 at p,
+have l := Norm_divides p,
+have d : Norm 1 = 1 := by ring,
+rw d at l,
+refine int.eq_one_of_dvd_one _ l,
+exact abs_nonneg _,
+end
+
 
 --this is to be left for later
 lemma units_are  (a : (ℤθ)ˣ) : ∃n : ℤ ,
@@ -334,9 +380,10 @@ lemma units_are  (a : (ℤθ)ˣ) : ∃n : ℤ ,
 
 theorem units (a : (ℤθ)ˣ) (h : a.val.h = 0) :
   a = 1 ∨ a = -1 :=
-  sorry
+  begin
+  sorry,
+  end
 
--- def R : comm_ring ℤθ := {!}
 
 
 

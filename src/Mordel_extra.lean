@@ -3,6 +3,7 @@ import
   data.complex.basic
   ring_theory.euclidean_domain
   .rt_2_ring
+  .cubic_ring
   ring_theory.coprime.basic
   ring_theory.principal_ideal_domain
   number_theory.divisors
@@ -1339,6 +1340,38 @@ rw ← neg_eq_iff_eq_neg at k,
 have d := sq_nonneg (g.z:ℤ),
 rw ← k at d,
 norm_num at d,
+end
+
+lemma case_2_sol (g : ℤα) (h : (y:ℤα)+α = f_unit' * (g^3)) :
+y = g.z^3 + 6*g.z^2*g.w + 6*g.z*g.w^2 + 4*g.w^3 ∧ 1 = g.z^3 + 3*g.z^2*g.w + 6*g.z*g.w^2 + 2*g.w^3 :=
+begin
+change (⟨y+0, 0+1⟩:ℤα) = f_unit * g^3 at h,
+unfold f_unit at h,
+rw [ zero_add, add_zero, element_cubed, mul_mule_2] at h,
+ring_nf at h,
+cases h with ha hb,
+split,{
+  ring_nf,
+  exact ha,
+},
+ring_nf,
+exact hb,
+end
+
+lemma case_3_sol (g : ℤα) (h : (y:ℤα)+α = f_unit'.inv * (g^3)) :
+y = -g.z^3 + 6*g.z^2*g.w - 6*g.z*g.w^2 + 4*g.w^3 ∧ 1 = g.z^3 - 3*g.z^2*g.w + 6*g.z*g.w^2 - 2*g.w^3 :=
+begin
+change (⟨y+0, 0+1⟩:ℤα) = f_unit_inv * g^3 at h,
+unfold f_unit_inv at h,
+rw [ zero_add, add_zero, element_cubed, mul_mule_2] at h,
+ring_nf at h,
+cases h with ha hb,
+split,{
+  ring_nf,
+  exact ha,
+},
+ring_nf,
+exact hb,
 end
 
 end mordell
