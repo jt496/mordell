@@ -329,6 +329,11 @@ def Norm : ℤθ → ℤ := λ k, | k.f^3 - 2*k.g^3 + 4*k.h^3 - 3*k.f^2*k.g - 3*
 
 def unit : (ℤθ)ˣ := ⟨ -1 - 3*θ - θ^2 , 25 + 13 * θ + 5 * θ^2, by ext; dec_trivial, by ext; dec_trivial ⟩
 
+lemma unit_l : (unit:ℤθ) = ⟨-1, -3, -1⟩ :=
+begin
+refl,
+end
+
 lemma simp_norm (a b : ℤ) : Norm (⟨a, -b, 0⟩:ℤθ) = |a^3 + 3*a^2*b + 6*a*b^2 + 2*b^3| :=
 begin
 unfold Norm,
@@ -372,7 +377,6 @@ refine int.eq_one_of_dvd_one _ l,
 exact abs_nonneg _,
 end
 
-
 --this is to be left for later
 lemma units_are  (a : (ℤθ)ˣ) : ∃n : ℤ ,
   a = unit^n ∨ a = - unit^n :=
@@ -386,15 +390,98 @@ begin
 have q := int.dvd_sub_of_mod_eq h,
 cases q with l lh,
 use l,
-rw  ← add_right_inj (s:ℤ) at lh,
-rw add_comm (s:ℤ) (y-s) at lh,
-rw add_comm (s:ℤ) (3*l) at lh,
-rw sub_add_cancel at lh,
-exact lh,
+exact eq_add_of_sub_eq lh,
 end 
 
-lemma unit_pow_zero_mod_three (n : ℤ) (w : n % (3:ℤ) = 0) : (((unit^n):ℤθ)).f % 3 = 1 ∧ (((unit^n):ℤθ)).g % 3 = 0 ∧ (((unit^n):ℤθ)).h % 3 = 0 :=
+lemma unit_cubed : (unit:ℤθ)^3 = ⟨-23, -63, -15⟩ :=
 begin
+rw pow_three,
+nth_rewrite 1 unit_l, nth_rewrite 1 unit_l,
+nth_rewrite 1 mul_mule_3,
+dsimp, ring_nf,
+end
+
+lemma unit_pow_zero : ((((unit^(3*0)):ℤθˣ):ℤθ)).f % 3 = 1 ∧ ((((unit^(3*0)):ℤθˣ):ℤθ)).g % 3 = 0 ∧ ((((unit^(3*0)):ℤθˣ):ℤθ)).h % 3 = 0 :=
+begin
+split,
+refl,
+split,
+refl, refl,
+end
+
+lemma unit_pow_zero_mod_three : ∀(k:ℕ), (((((unit^(3*k)):ℤθˣ):ℤθ)).f % 3 = 1 ∧ ((((unit^(3*k)):ℤθˣ):ℤθ)).g % 3 = 0 ∧ ((((unit^(3*k)):ℤθˣ):ℤθ)).h % 3 = 0) ∧ (((((unit^(3*-(k:ℤ))):ℤθˣ):ℤθ)).f % 3 = 1 ∧ ((((unit^(3*-(k:ℤ))):ℤθˣ):ℤθ)).g % 3 = 0 ∧ ((((unit^(3*-(k:ℤ))):ℤθˣ):ℤθ)).h % 3 = 0) :=
+begin
+intro k,
+split,
+{
+  induction k using nat.strong_induction_on with b hb,
+  dsimp at hb,
+  have j : b = 0 ∨ 0 < b,
+  {
+
+    sorry,
+  },
+  cases j with hy hr,
+  {
+    rw hy,
+    exact unit_pow_zero,
+  },
+  specialize hb (b-1),
+  have f : 0 < 1 := by dec_trivial,
+  have z := nat.sub_lt hr f,
+  have t : ((unit ^ (3 * (b - 1))):ℤθ).f % 3 = 1 ∧ ((unit ^ (3 * (b - 1))):ℤθ).g % 3 = 0 ∧ ((unit ^ (3 * (b - 1))):ℤθ).h % 3 = 0,
+  {
+    norm_cast,
+    apply hb,
+    exact z,
+  },
+  norm_cast at t,
+  clear hb z f,
+  cases t with t1 t23,
+  cases t23 with t2 t3,
+  have g1 : ((unit:ℤθ) ^ (3 * (b - 1))).f % 3 = 1,
+  {
+    norm_cast,
+    exact t1,
+  },
+  have r1 := y_mod_three ((unit ^ (3 * (b - 1))):ℤθ).f 1 g1,
+  cases r1 with c1 hc1,
+  have g2 : ((unit:ℤθ) ^ (3 * (b - 1))).g % 3 = 0,
+  {
+    norm_cast,
+    exact t2,
+  },
+  have r2 := y_mod_three ((unit ^ (3 * (b - 1))):ℤθ).g 0 g2,
+  cases r2 with c2 hc2,
+  have g3 : ((unit:ℤθ) ^ (3 * (b - 1))).h % 3 = 0,
+  {
+    norm_cast,
+    exact t3,
+  },
+  have r3 := y_mod_three ((unit ^ (3 * (b - 1))):ℤθ).h 0 g3,
+  cases r3 with c3 hc3,
+  rw add_zero at hc2,
+  rw add_zero at hc3,
+  have s : ((unit ^ (3 * (b - 1))):ℤθ) = ⟨3*c1 + 1, 3*c2, 3*c3⟩,
+  {
+    ext; dsimp,
+    exact hc1, exact hc2, exact hc3,
+  },
+  have s1 : ((unit ^ (3 * (b))):ℤθ) = ((unit ^ (3 * (b - 1))):ℤθ) * (((unit ^ (3))):ℤθ),
+  {
+    rw ← pow_add,
+    --rw mul_sub_one,
+    sorry,
+  },
+  rw s at s1,
+  rw unit_cubed at s1,
+  rw mul_mule_3 at s1,
+  dsimp at s1,
+  ring_nf at s1,
+  --special rw command
+  sorry,
+},
+
 sorry,
 end
 
