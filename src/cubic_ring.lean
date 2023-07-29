@@ -324,12 +324,19 @@ instance is_ring : comm_ring ℤθ :=
 
 #eval θ^3
 #eval θ^4
+#eval (25+13*θ+5*θ^2)^3
+#eval (-1-3*θ-θ^2)^2
 
 def Norm : ℤθ → ℤ := λ k, | k.f^3 - 2*k.g^3 + 4*k.h^3 - 3*k.f^2*k.g - 3*k.f^2*k.h + 6*k.f*k.g^2 + 6*k.g^2*k.h + 24*k.f*k.h^2 - 12*k.g*k.h^2 - 12*k.f*k.g*k.h |
 
 def unit : (ℤθ)ˣ := ⟨ -1 - 3*θ - θ^2 , 25 + 13 * θ + 5 * θ^2, by ext; dec_trivial, by ext; dec_trivial ⟩
 
 lemma unit_l : (unit:ℤθ) = ⟨-1, -3, -1⟩ :=
+begin
+refl,
+end
+
+lemma unit_neg_1 : (((unit ^ -(1:ℤ)):ℤθˣ):ℤθ) = ⟨25, 13, 5⟩:=
 begin
 refl,
 end
@@ -342,7 +349,7 @@ ring_nf,
 end
 
 lemma mul_mule_3 (a b : ℤθ) : a*b = (⟨ a.f*b.f + 6*a.h*b.h - 2*a.g*b.h - 2*a.h*b.g, a.f*b.g + a.g*b.f + 16*a.h*b.h - 6*a.g*b.h - 6*a.h*b.g, a.f*b.h + a.h*b.f + a.g*b.g + 3*a.h*b.h - 3*a.g*b.h - 3*a.h*b.g⟩:ℤθ) :=
-begin
+begin   
 refl,
 end
 
@@ -393,12 +400,40 @@ use l,
 exact eq_add_of_sub_eq lh,
 end 
 
+lemma unit_sq : (((unit ^ 2):ℤθˣ):ℤθ) = ⟨-5, -14, -4⟩ :=
+begin
+rw pow_two,
+have h : (((unit * unit):ℤθˣ):ℤθ) = ((unit:ℤθˣ):ℤθ) * ((unit:ℤθˣ):ℤθ),
+ {
+  refl,
+ },
+rw h,
+rw unit_l,
+rw mul_mule_3, dsimp, norm_num,
+end
+
 lemma unit_cubed : (unit:ℤθ)^3 = ⟨-23, -63, -15⟩ :=
 begin
 rw pow_three,
 nth_rewrite 1 unit_l, nth_rewrite 1 unit_l,
 nth_rewrite 1 mul_mule_3,
 dsimp, ring_nf,
+end
+
+lemma unit_inv_cubed : (((unit ^ (-3:ℤ)):ℤθˣ):ℤθ) = ⟨10591, 5553, 2139⟩ :=
+begin
+rw ← mul_neg_one,
+rw mul_comm, rw zpow_mul, 
+have q : (3:ℤ) = 2 + 1 := by dec_trivial,
+nth_rewrite 0 q, rw zpow_add, rw zpow_one, rw zpow_two,
+rw mul_assoc,
+--how did that work?
+change (((unit ^ (-1:ℤ)):ℤθˣ):ℤθ) * ((((unit ^ (-1:ℤ)):ℤθˣ) * ((unit ^ (-1:ℤ)):ℤθˣ)):ℤθ) = ⟨10591, 5553, 2139⟩,
+rw unit_neg_1,
+nth_rewrite 1 mul_mule_3,
+dsimp, norm_num,
+rw mul_mule_3,
+dsimp, norm_num,
 end
 
 lemma unit_pow_zero : ((((unit^(3*0)):ℤθˣ):ℤθ)).f % 3 = 1 ∧ ((((unit^(3*0)):ℤθˣ):ℤθ)).g % 3 = 0 ∧ ((((unit^(3*0)):ℤθˣ):ℤθ)).h % 3 = 0 :=
@@ -409,80 +444,300 @@ split,
 refl, refl,
 end
 
-lemma unit_pow_zero_mod_three : ∀(k:ℕ), (((((unit^(3*k)):ℤθˣ):ℤθ)).f % 3 = 1 ∧ ((((unit^(3*k)):ℤθˣ):ℤθ)).g % 3 = 0 ∧ ((((unit^(3*k)):ℤθˣ):ℤθ)).h % 3 = 0) ∧ (((((unit^(3*-(k:ℤ))):ℤθˣ):ℤθ)).f % 3 = 1 ∧ ((((unit^(3*-(k:ℤ))):ℤθˣ):ℤθ)).g % 3 = 0 ∧ ((((unit^(3*-(k:ℤ))):ℤθˣ):ℤθ)).h % 3 = 0) :=
+lemma unit_pow_one : ((((unit^(1)):ℤθˣ):ℤθ)).f % 3 = 2 ∧ ((((unit^(1)):ℤθˣ):ℤθ)).g % 3 = 0 ∧ ((((unit^(1)):ℤθˣ):ℤθ)).h % 3 = 2 :=
+begin
+split,
+refl,
+split,
+refl, refl,
+end
+
+lemma unit_pow_zero_mod_three : ∀(k:ℕ), (((((unit^(3*(k:ℤ))):ℤθˣ):ℤθ)).f % 3 = 1 ∧ ((((unit^(3*(k:ℤ))):ℤθˣ):ℤθ)).g % 3 = 0 ∧ ((((unit^(3*(k:ℤ))):ℤθˣ):ℤθ)).h % 3 = 0) ∧ (((((unit^(3*-(k:ℤ))):ℤθˣ):ℤθ)).f % 3 = 1 ∧ ((((unit^(3*-(k:ℤ))):ℤθˣ):ℤθ)).g % 3 = 0 ∧ ((((unit^(3*-(k:ℤ))):ℤθˣ):ℤθ)).h % 3 = 0) :=
 begin
 intro k,
 split,
 {
-  induction k using nat.strong_induction_on with b hb,
-  dsimp at hb,
-  have j : b = 0 ∨ 0 < b,
-  {
-
-    sorry,
-  },
-  cases j with hy hr,
-  {
-    rw hy,
+  induction k with b hb,
+   {
     exact unit_pow_zero,
-  },
-  specialize hb (b-1),
-  have f : 0 < 1 := by dec_trivial,
-  have z := nat.sub_lt hr f,
-  have t : ((unit ^ (3 * (b - 1))):ℤθ).f % 3 = 1 ∧ ((unit ^ (3 * (b - 1))):ℤθ).g % 3 = 0 ∧ ((unit ^ (3 * (b - 1))):ℤθ).h % 3 = 0,
-  {
+   },
+  cases hb with h1 h23,
+  cases h23 with h2 h3,
+  have p : b.succ = b + 1 := by refl,
+  repeat {rw p},
+  have w : ((unit ^ (3 * (b + 1))):ℤθ) = ((unit ^ (3 * b)):ℤθ) * ((unit ^ (3)):ℤθ),
+   {
+    rw [mul_add, mul_one, pow_add],
+   },
+  have t1 : ((unit:ℤθ)^(3 * b)).f % 3 = 1,
+   {
     norm_cast,
-    apply hb,
-    exact z,
-  },
-  norm_cast at t,
-  clear hb z f,
-  cases t with t1 t23,
-  cases t23 with t2 t3,
-  have g1 : ((unit:ℤθ) ^ (3 * (b - 1))).f % 3 = 1,
-  {
+    exact h1,
+   },
+  have t2 : ((unit:ℤθ)^(3 * b)).g % 3 = 0,
+   {
     norm_cast,
-    exact t1,
-  },
-  have r1 := y_mod_three ((unit ^ (3 * (b - 1))):ℤθ).f 1 g1,
+    exact h2,
+   },
+  have t3 : ((unit:ℤθ)^(3 * b)).h % 3 = 0,
+   {
+    norm_cast,
+    exact h3,
+   },
+  have r1 := y_mod_three ((unit ^ (3 * b)):ℤθ).f 1 t1,
   cases r1 with c1 hc1,
-  have g2 : ((unit:ℤθ) ^ (3 * (b - 1))).g % 3 = 0,
-  {
-    norm_cast,
-    exact t2,
-  },
-  have r2 := y_mod_three ((unit ^ (3 * (b - 1))):ℤθ).g 0 g2,
+  have r2 := y_mod_three ((unit ^ (3 * b)):ℤθ).g 0 t2,
   cases r2 with c2 hc2,
-  have g3 : ((unit:ℤθ) ^ (3 * (b - 1))).h % 3 = 0,
-  {
-    norm_cast,
-    exact t3,
-  },
-  have r3 := y_mod_three ((unit ^ (3 * (b - 1))):ℤθ).h 0 g3,
-  cases r3 with c3 hc3,
   rw add_zero at hc2,
+  have r3 := y_mod_three ((unit ^ (3 * b)):ℤθ).h 0 t3,
+  cases r3 with c3 hc3,
   rw add_zero at hc3,
-  have s : ((unit ^ (3 * (b - 1))):ℤθ) = ⟨3*c1 + 1, 3*c2, 3*c3⟩,
-  {
+  have s : ((unit ^ (3 * b)):ℤθ) = ⟨ 3*c1 + 1, 3*c2, 3*c3⟩,
+   {
     ext; dsimp,
     exact hc1, exact hc2, exact hc3,
-  },
-  have s1 : ((unit ^ (3 * (b))):ℤθ) = ((unit ^ (3 * (b - 1))):ℤθ) * (((unit ^ (3))):ℤθ),
-  {
+   },
+  -- just the same as w?
+  have s1 : ((unit ^ (3 * (b + 1))):ℤθ) = ((unit ^ (3 * b)):ℤθ) * ((unit ^ 3):ℤθ),
+   {
     rw ← pow_add,
-    --rw mul_sub_one,
-    sorry,
-  },
-  rw s at s1,
-  rw unit_cubed at s1,
-  rw mul_mule_3 at s1,
-  dsimp at s1,
-  ring_nf at s1,
-  --special rw command
-  sorry,
+    rw [mul_add, mul_one],
+   },
+  rw s at s1, rw unit_cubed at s1,
+  rw mul_mule_3 at s1, dsimp at s1, ring_nf at s1,
+  rw ext_iff at s1, dsimp at s1, 
+  norm_cast at s1,
+  cases s1 with f1 f23,
+  cases f23 with f2 f3,
+  norm_cast,
+  rw mul_add, rw mul_one,
+  rw [f1, f2, f3],
+  split,
+   {
+    rw int.add_mod, rw ← neg_mul, rw int.mul_mod,
+    norm_num,
+    rw int.add_mod, rw int.mul_mod,
+    norm_num,
+    rw int.sub_mod, rw int.mul_mod,
+    norm_num,
+   },
+  split,
+   {
+    norm_num,
+    use (-(63*c1) + (138 * c3 + (67 * c2 - 21))),
+    ring_nf,
+   },
+   {
+    norm_num,
+    use (-(15*c1) + (121 * c3 + (-(18 * c2) - 5))),
+    ring_nf,
+   },
 },
+{
+  induction k with b hb,
+   {
+    rw [int.coe_nat_zero, neg_zero, mul_zero],
+    exact unit_pow_zero,
+   },
+  cases hb with h1 h23,
+  cases h23 with h2 h3,
+  have p : b.succ = b + 1 := by refl,
+  rw p, -- why is it auto repeating?
+  --why this notation?
+  have w : (((unit ^ ((3:ℤ) * -((b + 1):ℤ))):ℤθˣ):ℤθ) = (((unit ^ (3 * -(b:ℤ))):ℤθˣ):ℤθ) * (((unit ^ (-3:ℤ)):ℤθˣ):ℤθ),
+   {
+    rw [neg_add, mul_add, mul_neg_one, zpow_add],
+    norm_cast,
+   },
+  have r1 := y_mod_three (((unit ^ ((3:ℤ) * -((b):ℤ))):ℤθˣ):ℤθ).f 1 h1,
+  cases r1 with c1 hc1,
+  have r2 := y_mod_three (((unit ^ ((3:ℤ) * -((b):ℤ))):ℤθˣ):ℤθ).g 0 h2,
+  cases r2 with c2 hc2,
+  rw add_zero at hc2,
+  have r3 := y_mod_three (((unit ^ ((3:ℤ) * -((b):ℤ))):ℤθˣ):ℤθ).h 0 h3,
+  cases r3 with c3 hc3,
+  rw add_zero at hc3,
+  have s : (((unit ^ ((3:ℤ) * -((b):ℤ))):ℤθˣ):ℤθ) = ⟨ 3*c1 + 1, 3*c2, 3*c3⟩,
+   {
+    ext; dsimp,
+    exact hc1, exact hc2, exact hc3,
+   },
+  rw s at w, rw unit_inv_cubed at w,
+  rw mul_mule_3 at w, dsimp at w, ring_nf at w,
+  rw ext_iff at w, dsimp at w,
+  cases w with w1 w23,
+  cases w23 with w2 w3,
+  have j : (-(3 * (b:ℤ)) - 3) = 3 * -((b + 1):ℤ),
+   {
+    rw mul_comm,
+    rw ← neg_mul,
+    rw mul_comm,
+    rw sub_eq_add_neg,
+    nth_rewrite 1 ← mul_neg_one,
+    rw ← mul_add,
+    rw ← neg_add,
+   },
+  have j1 : (b:ℤ) + 1 = ((((b + 1):ℕ)):ℤ),
+   {
+    norm_cast,
+   },
+  rw j1 at j,
+  rw j at w1, rw j at w2, rw j at w3,
+  rw [w1, w2, w3],
+  clear h1 h2 h3 p hc1 hc2 hc3 w1 w2 w3 s j j1,
+  split,
+   {
+    rw int.add_mod, rw int.mul_mod, norm_num,
+    rw int.add_mod, rw int.mul_mod, norm_num,
+    rw int.add_mod, rw ← neg_mul, rw int.mul_mod, norm_num,
+   },
+  split,
+   {
+    norm_num,
+    use (5553*c1 + (906 * c3 + (-(2243 * c2) + 1851))),
+    ring_nf,
+   },
+   {
+    norm_num,
+    use (2139 * c1 + (349 * c3 + (-(864 * c2) + 713))),
+    ring_nf,
+   },
+},
+end
 
-sorry,
+lemma unit_zpow_zero_mod_three : ∀(k:ℤ), (((((unit^(3*k)):ℤθˣ):ℤθ)).f % 3 = 1 ∧ ((((unit^(3*k)):ℤθˣ):ℤθ)).g % 3 = 0 ∧ ((((unit^(3*k)):ℤθˣ):ℤθ)).h % 3 = 0) :=
+begin
+intro q,
+have h := lt_or_le 0 q,
+have p := unit_pow_zero_mod_three,
+cases h with h1 h2,
+ {
+  specialize p (int.to_nat q),
+  cases p with p1 p2,
+  rw int.to_nat_of_nonneg (le_of_lt h1) at p1,
+  exact p1,
+ },
+ specialize p (int.to_nat (-q)),
+ cases p with p1 p2,
+ have r := neg_le_neg h2,
+ rw neg_zero at r,
+ rw int.to_nat_of_nonneg r at p2,
+ rw neg_neg at p2,
+ exact p2,
+end
+
+lemma unit_zpow_one_mod_three : ∀(k:ℤ), (((((unit^(3*k + 1)):ℤθˣ):ℤθ)).f % 3 = 2 ∧ ((((unit^(3*k + 1)):ℤθˣ):ℤθ)).g % 3 = 0 ∧ ((((unit^(3*k + 1)):ℤθˣ):ℤθ)).h % 3 = 2) :=
+begin
+intro k,
+have w : ((((unit^(3*k + 1)):ℤθˣ):ℤθ)) = (((unit^(3*k)):ℤθˣ):ℤθ) * (((unit^(1)):ℤθˣ):ℤθ),
+ {
+  rw zpow_add,
+  norm_cast,
+ },
+have g := unit_zpow_zero_mod_three,
+specialize g k,
+cases g with g1 g23,
+cases g23 with g2 g3,
+have t1 := y_mod_three (((unit ^ (3*k)):ℤθˣ):ℤθ).f 1 g1,
+cases t1 with j1 hj1,
+have t2 := y_mod_three (((unit ^ (3*k)):ℤθˣ):ℤθ).g 0 g2,
+cases t2 with j2 hj2,
+rw add_zero at hj2,
+have t3 := y_mod_three (((unit ^ (3*k)):ℤθˣ):ℤθ).h 0 g3,
+cases t3 with j3 hj3,
+rw add_zero at hj3,
+have s : (((unit ^ (3*k)):ℤθˣ):ℤθ) = ⟨ 3*j1 + 1, 3*j2, 3*j3⟩,
+ {
+   ext; dsimp,
+   exact hj1, exact hj2, exact hj3,
+ },
+clear g1 g2 g3 hj1 hj2 hj3,
+rw s at w, rw pow_one at w, rw unit_l at w,
+rw mul_mule_3 at w, dsimp at w, ring_nf at w,
+rw ext_iff at w,
+dsimp at w,
+cases w with w1 w23,
+cases w23 with w2 w3,
+rw [w1, w2, w3],
+split,
+ {
+  rw int.add_mod, rw ← neg_mul, rw int.mul_mod,
+  norm_num,
+  rw int.sub_mod, rw int.mul_mod,
+  norm_num,
+ },
+split,
+ {
+  rw int.add_mod, rw ← neg_mul, rw int.mul_mod,
+  norm_num,
+  use (2*j3 + (5*j2 -1)),
+  ring_nf,
+ },
+
+rw int.add_mod, rw ← neg_mul, rw int.mul_mod,
+norm_num,
+rw int.sub_mod, rw int.mul_mod,
+norm_num,
+end
+
+lemma unit_zpow_two_mod_three : ∀(k:ℤ), (((((unit^(3*k + 2)):ℤθˣ):ℤθ)).f % 3 = 1 ∧ ((((unit^(3*k + 2)):ℤθˣ):ℤθ)).g % 3 = 1 ∧ ((((unit^(3*k + 2)):ℤθˣ):ℤθ)).h % 3 = 2) :=
+begin
+intro k,
+have w : ((((unit^(3*k + 2)):ℤθˣ):ℤθ)) = (((unit^(3*k)):ℤθˣ):ℤθ) * (((unit^(2)):ℤθˣ):ℤθ),
+ {
+  rw zpow_add,
+  norm_cast,
+ },
+have g := unit_zpow_zero_mod_three,
+specialize g k,
+cases g with g1 g23,
+cases g23 with g2 g3,
+have t1 := y_mod_three (((unit ^ (3*k)):ℤθˣ):ℤθ).f 1 g1,
+cases t1 with j1 hj1,
+have t2 := y_mod_three (((unit ^ (3*k)):ℤθˣ):ℤθ).g 0 g2,
+cases t2 with j2 hj2,
+rw add_zero at hj2,
+have t3 := y_mod_three (((unit ^ (3*k)):ℤθˣ):ℤθ).h 0 g3,
+cases t3 with j3 hj3,
+rw add_zero at hj3,
+have s : (((unit ^ (3*k)):ℤθˣ):ℤθ) = ⟨ 3*j1 + 1, 3*j2, 3*j3⟩,
+ {
+   ext; dsimp,
+   exact hj1, exact hj2, exact hj3,
+ },
+clear g1 g2 g3 hj1 hj2 hj3,
+rw s at w, rw unit_sq at w,
+rw mul_mule_3 at w, dsimp at w, ring_nf at w,
+rw ext_iff at w,
+dsimp at w,
+cases w with w1 w23,
+cases w23 with w2 w3,
+rw [w1, w2, w3],
+split,
+ {
+  rw int.add_mod, rw ← neg_mul, rw int.mul_mod,
+  norm_num,
+  rw int.add_mod, rw int.mul_mod,
+  norm_num,
+  rw int.sub_mod, rw int.mul_mod,
+  norm_num,
+ },
+split,
+ {
+  rw int.add_mod, rw ← neg_mul, rw int.mul_mod,
+  norm_num,
+  rw int.add_mod, rw int.mul_mod,
+  norm_num,
+  rw int.sub_mod, rw int.mul_mod,
+  norm_num,
+ },
+
+rw int.add_mod, rw ← neg_mul, rw int.mul_mod,
+norm_num,
+rw int.add_mod, rw int.mul_mod,
+norm_num,
+rw int.sub_mod, rw ← neg_mul, rw int.mul_mod,
+norm_num,
 end
 
 theorem units (a : (ℤθ)ˣ) (h : a.val.h = 0) :
