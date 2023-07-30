@@ -740,6 +740,60 @@ rw int.sub_mod, rw ← neg_mul, rw int.mul_mod,
 norm_num,
 end
 
+
+lemma mul_three_expansion (n : ℕ) (h : 1 ≤ n) : ∃ (a:ℕ) (b:ℤ), (1 ≤ a) ∧ (3*(n:ℤ) = 3^a * (3*b+1) ∨ 3*(n:ℤ) = 3^a * (3*b+2)) :=
+begin
+induction n with k hk,
+exfalso,
+norm_num at h,
+have ss : k = 0 ∨ 1 ≤ k := sorry,
+cases ss,
+rw ss,
+use 1, use 0,
+split,
+exact nat.le_refl 1,
+left,
+norm_num,
+have bb := hk ss,
+cases bb with c hcd,
+cases hcd with d hd,
+cases hd with fitty cent,
+clear hk h ss,
+cases cent,
+{
+have nausea : c = 1 ∨ 2 ≤ c := sorry,
+cases nausea,{
+rw nausea at cent,
+rw pow_one (3:ℤ) at cent,
+use 1, use d,
+split,
+exact nat.le_refl 1,
+right,
+rw [nat.succ_eq_add_one, nat.cast_add, mul_add, nat.cast_one, mul_one, cent],
+ring_nf,
+},
+use 1, use 3^(c-2)*(3*d+1),
+split,
+exact nat.le_refl 1,
+left,
+rw [nat.succ_eq_add_one, nat.cast_add, mul_add, nat.cast_one, mul_one, cent],
+nth_rewrite 1 mul_add,
+nth_rewrite 1 ← mul_assoc,
+have frbro : (3:ℤ) = 3^1 := pow_one 3,
+nth_rewrite 4 frbro,
+rw [← pow_add, ← mul_assoc, ← pow_add],
+have sithlord : (1 + (1 + (c - 2))) = c,{
+  ring_nf,
+  rw nat.sub_add_cancel,
+  exact nausea,
+},
+rw [sithlord, pow_one, mul_one],
+},
+
+sorry,
+end
+
+
 theorem units (a : (ℤθ)ˣ) (h : a.val.h = 0) :
   a = 1 ∨ a = -1 :=
   begin
