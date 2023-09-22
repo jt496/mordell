@@ -384,7 +384,7 @@ refine int.eq_one_of_dvd_one _ l,
 exact abs_nonneg _,
 end
 
---this is to be left for later
+--this is to be left for later. This is the hardest part of the proof.
 lemma units_are  (a : (ℤθ)ˣ) : ∃n : ℤ ,
   a = unit^n ∨ a = - unit^n :=
   begin
