@@ -7,6 +7,7 @@ import
   algebra.group_power.basic
   data.real.irrational
   algebra.order.monoid.lemmas
+  tactic.push_neg
 
 open_locale classical
 
@@ -740,6 +741,39 @@ rw int.sub_mod, rw ← neg_mul, rw int.mul_mod,
 norm_num,
 end
 
+lemma mul_three_pow_dvd (n : ℕ) (h : 1 ≤ n) : ∃ (a:ℕ), (3^a ∣ 3*n) ∧ (¬(3^(a + 1) ∣ 3*n)) :=
+begin
+by_contra,
+rw push_neg.not_exists_eq at h,
+have r : ∀ (x : ℕ), ¬(3 ^ x ∣ 3 * n) ∨  (3 ^ (x + 1) ∣ 3 * n),
+ {
+  sorry
+ },
+clear h,
+have s : ∀ (x : ℕ), (¬(3 ^ x ∣ 3 * n) ∧ ¬(3 ^ (x + 1) ∣ 3 * n)) ∨ ((3 ^ x ∣ 3 * n) ∧ (3 ^ (x + 1) ∣ 3 * n)),
+ {
+  sorry
+ },
+clear r,
+have t : ∀ (f : ℕ), (3^f ∣ 3*n),
+ {
+  intro g,
+  induction g with k hk,
+  norm_num,
+  specialize s k,
+  cases s with s1 s2,
+   {
+    exfalso,
+    cases s1 with s3 s4,
+    sorry
+   },
+   cases s2 with s5 s6,
+   exact s6,
+ },
+ specialize t (n + 1),
+ 
+sorry,
+end
 
 lemma mul_three_expansion (n : ℕ) (h : 1 ≤ n) : ∃ (a:ℕ) (b:ℤ), (1 ≤ a) ∧ (3*(n:ℤ) = 3^a * (3*b+1) ∨ 3*(n:ℤ) = 3^a * (3*b+2)) :=
 begin
