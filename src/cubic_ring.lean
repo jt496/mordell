@@ -857,7 +857,22 @@ end
 lemma mul_three_expansion (n : ℕ) (h : 1 ≤ n) : ∃ (a:ℕ) (b:ℤ), (1 ≤ a) ∧ (3*(n:ℤ) = 3^a * (3*b+1) ∨ 3*(n:ℤ) = 3^a * (3*b+2)) :=
 begin
 have q := mul_three_pow_dvd n h,
-cases q with k hk,
+cases q with k hk, cases hk with h1 h2,
+have ss : k = 0 ∨ 0 < k := nat.eq_zero_or_pos k,
+cases ss with s1 s2,
+rw [s1, zero_add, pow_one] at h2, exfalso, 
+have p : 3 ∣ 3*n,
+ {
+  use n,
+ },
+have contra : (3 ∣ 3*n) ∧ ¬(3 ∣ 3*n),
+ {
+  split, exact p, exact h2,
+ },
+simp at contra, exact contra,
+change 1 ≤ k at s2,
+
+
 sorry
 end
 
