@@ -957,7 +957,7 @@ have p5 : 1 ≤ (int.to_nat n),
   change (0 < n) ∧ ¬(0 < n) at please, 
   --OMG why?
   {
-   sorry
+   apply s1, exact p4,
   },
  change 1 ≤ (int.to_nat n) at s2, exact s2,
  },
@@ -968,8 +968,8 @@ use j, use g,
 split, exact hg0,
 have coe_coe : ((int.to_nat n):ℤ) = n,
  {
-  
-  sorry
+  have finale := le_of_lt p4,
+  exact int.to_nat_of_nonneg finale,
  },
 cases hg12 with hg1 hg2,
 rw coe_coe at hg1, left, exact hg1,
@@ -989,7 +989,7 @@ have p6 : 1 ≤ (int.to_nat (-n)),
   change (n < 0) ∧ ¬(n < 0) at please, 
   --OMG why?
   {
-   sorry
+   apply s1, exact p2,
   },
  change 1 ≤ (int.to_nat (-n)) at s2, exact s2,
  },
@@ -998,8 +998,9 @@ have r2 := mul_three_expansion (int.to_nat (-n)) p6,
 cases r2 with j hj, cases hj with g hg, cases hg with hg0 hg12, 
 have coe_coe : -((int.to_nat (-n)):ℤ) = n,
  {
-  
-  sorry
+  rw ← neg_inj, rw neg_neg,
+  rw ← neg_zero at p2, rw lt_neg at p2,
+  exact int.to_nat_of_nonneg (le_of_lt p2),
  },
 use j,
 cases hg12 with hg1 hg2, 
@@ -1039,7 +1040,10 @@ cases hg12 with hg1 hg2,
   exact hg2,
  },
 
+
 end
+
+
 
 
 theorem units (a : (ℤθ)ˣ) (h : a.val.h = 0) :
