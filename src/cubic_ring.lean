@@ -922,7 +922,62 @@ split, exact s2,
 right, exact_mod_cast hj,
 end
 
+lemma zmul_three_expansion (n : ℤ) (h : n ≠ 0) : ∃ (a:ℕ) (b:ℤ), ((1 ≤ a) ∧ (3*n = 3^a * (3*b+1) ∨ 3*n = 3^a * (3*b+2))) :=
+begin
+have p : n ≥ 0 ∨ n < 0,
+ {
+  have w := lt_or_le 0 n,
+  cases w with w1 w2,
+  left, rw ge_iff_le, rw le_iff_lt_or_eq, left, exact w1,
+  rw le_iff_lt_or_eq at w2,
+  cases w2 with w3 w4,
+  right, exact w3,
+  left, rw ge_iff_le, rw le_iff_lt_or_eq, right, exact eq.symm w4,
+ },
+cases p with p1 p2,
+rw ge_iff_le at p1, rw le_iff_eq_or_lt at p1,
+cases p1 with p3 p4,
+have t : (n = 0) ∧ (n ≠ 0),
+ {
+  split, exact eq.symm p3, exact h,
+ },
+exfalso,
+simp at t, exact t,
+have p5 : 1 ≤ (int.to_nat n),
+ {
+  have s := nat.eq_zero_or_pos (int.to_nat n),
+  cases s with s1 s2,
+  exfalso,
+  simp at s1,
+  rw ← push_neg.not_lt_eq at s1,
+  have please : (0 < n) ∧ ¬(0 < n),
+   {
+    split, exact p4, exact s1,
+   },
+  change (0 < n) ∧ ¬(0 < n) at please, 
+  --OMG why?
+  {
+   sorry
+  },
+ change 1 ≤ (int.to_nat n) at s2, exact s2,
+ },
+ 
+have r := mul_three_expansion (int.to_nat n) p5,
+cases r with j hj, cases hj with g hg, cases hg with hg0 hg12, 
+use j, use g,
+split, exact hg0,
+have coe_coe : ((int.to_nat n):ℤ) = n,
+ {
+  
+  sorry
+ },
+cases hg12 with hg1 hg2,
+rw coe_coe at hg1, left, exact hg1,
+rw coe_coe at hg2, right, exact hg2,
 
+ 
+sorry
+end
 
 
 theorem units (a : (ℤθ)ˣ) (h : a.val.h = 0) :
