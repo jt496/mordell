@@ -854,6 +854,26 @@ have w: (3 ^ (n + 1) ∣ 3 * n) ∧ ¬(3 ^ (n + 1) ∣ 3 * n),
 simp at w, exact w,
 end
 
+lemma rep_mod_three (n : ℕ) : ∃ (a : ℕ), (n = 3*a) ∨ (n = 3*a + 1) ∨ (n = 3*a + 2) :=
+begin
+induction n with k hk,
+use 0, left, rw mul_zero,
+cases hk with j hj, cases hj with h1 h23,
+use j, right, left, 
+change k + 1 = 3*j + 1, rw add_left_inj 1, exact h1,
+cases h23 with h2 h3,
+use j, right, right,
+change k + 1 = 3*j + 2, 
+rw ← one_add_one_eq_two, rw ← add_assoc,
+rw add_left_inj 1, exact h2,
+use (j + 1), left,
+change k + 1 = 3*(j + 1),
+rw mul_add, rw mul_one,
+have babymath : 3 = 2 + 1 := by norm_num,
+nth_rewrite 1 babymath, rw ← add_assoc,
+rw add_left_inj 1, exact h3,
+end
+
 lemma mul_three_expansion (n : ℕ) (h : 1 ≤ n) : ∃ (a:ℕ) (b:ℤ), (1 ≤ a) ∧ (3*(n:ℤ) = 3^a * (3*b+1) ∨ 3*(n:ℤ) = 3^a * (3*b+2)) :=
 begin
 have q := mul_three_pow_dvd n h,
@@ -871,63 +891,38 @@ have contra : (3 ∣ 3*n) ∧ ¬(3 ∣ 3*n),
  },
 simp at contra, exact contra,
 change 1 ≤ k at s2,
+change ∃ (l : ℕ), 3*n = (3^k) * l at h1, cases h1 with j hj,
+have p := rep_mod_three j, cases p with r hr,
+cases hr with t1 t23,
+ {
+  exfalso,
+  rw t1 at hj, rw ← mul_assoc at hj,
+  nth_rewrite 2 ← pow_one 3 at hj, rw ← pow_add at hj,
+  have g : 3^(k + 1) ∣ 3*n,
+   {
+    use r, exact hj,
+   },
+  have combine : (3^(k+1) ∣ 3*n) ∧ ¬(3^(k+1) ∣ 3*n),
+   {
+    split, exact g, exact h2,
+   },
+  simp at combine, exact combine,
+ },
+cases t23 with t2 t3,
+ {
+  rw t2 at hj,
+  use k, use r,
+  split, exact s2,
+  left, exact_mod_cast hj,
+ },
 
-
-sorry
+rw t3 at hj,
+use k, use r,
+split, exact s2,
+right, exact_mod_cast hj,
 end
 
 
---lemma mul_three_expansion (n : ℕ) (h : 1 ≤ n) : ∃ (a:ℕ) (b:ℤ), (1 ≤ a) ∧ (3*(n:ℤ) = 3^a * (3*b+1) ∨ 3*(n:ℤ) = 3^a * (3*b+2)) :=
---begin
--- induction n with k hk,
--- exfalso,
--- norm_num at h,
--- have ss : k = 0 ∨ 1 ≤ k := sorry,
--- cases ss,
--- rw ss,
--- use 1, use 0,
--- split,
--- exact nat.le_refl 1,
--- left,
--- norm_num,
--- have bb := hk ss,
--- cases bb with c hcd,
--- cases hcd with d hd,
--- cases hd with fitty cent,
--- clear hk h ss,
--- cases cent,
--- {
--- have nausea : c = 1 ∨ 2 ≤ c := sorry,
--- cases nausea,{
--- rw nausea at cent,
--- rw pow_one (3:ℤ) at cent,
--- use 1, use d,
--- split,
--- exact nat.le_refl 1,
--- right,
--- rw [nat.succ_eq_add_one, nat.cast_add, mul_add, nat.cast_one, mul_one, cent],
--- ring_nf,
--- },
--- use 1, use 3^(c-2)*(3*d+1),
--- split,
--- exact nat.le_refl 1,
--- left,
--- rw [nat.succ_eq_add_one, nat.cast_add, mul_add, nat.cast_one, mul_one, cent],
--- nth_rewrite 1 mul_add,
--- nth_rewrite 1 ← mul_assoc,
--- have frbro : (3:ℤ) = 3^1 := pow_one 3,
--- nth_rewrite 4 frbro,
--- rw [← pow_add, ← mul_assoc, ← pow_add],
--- have sithlord : (1 + (1 + (c - 2))) = c,{
---   ring_nf,
---   rw nat.sub_add_cancel,
---   exact nausea,
--- },
--- rw [sithlord, pow_one, mul_one],
--- },
-
--- sorry,
--- end
 
 
 theorem units (a : (ℤθ)ˣ) (h : a.val.h = 0) :
