@@ -962,8 +962,8 @@ have p5 : 1 ≤ (int.to_nat n),
  change 1 ≤ (int.to_nat n) at s2, exact s2,
  },
  
-have r := mul_three_expansion (int.to_nat n) p5,
-cases r with j hj, cases hj with g hg, cases hg with hg0 hg12, 
+have r1 := mul_three_expansion (int.to_nat n) p5,
+cases r1 with j hj, cases hj with g hg, cases hg with hg0 hg12, 
 use j, use g,
 split, exact hg0,
 have coe_coe : ((int.to_nat n):ℤ) = n,
@@ -975,8 +975,70 @@ cases hg12 with hg1 hg2,
 rw coe_coe at hg1, left, exact hg1,
 rw coe_coe at hg2, right, exact hg2,
 
+have p6 : 1 ≤ (int.to_nat (-n)),
+ {
+  have s := nat.eq_zero_or_pos (int.to_nat (-n)),
+  cases s with s1 s2,
+  exfalso,
+  simp at s1,
+  rw ← push_neg.not_lt_eq at s1,
+  have please : (n < 0) ∧ ¬(n < 0),
+   {
+    split, exact p2, exact s1,
+   },
+  change (n < 0) ∧ ¬(n < 0) at please, 
+  --OMG why?
+  {
+   sorry
+  },
+ change 1 ≤ (int.to_nat (-n)) at s2, exact s2,
+ },
  
-sorry
+have r2 := mul_three_expansion (int.to_nat (-n)) p6,
+cases r2 with j hj, cases hj with g hg, cases hg with hg0 hg12, 
+have coe_coe : -((int.to_nat (-n)):ℤ) = n,
+ {
+  
+  sorry
+ },
+use j,
+cases hg12 with hg1 hg2, 
+ {
+  use -(g + 1),
+  split, exact hg0,
+  right, 
+  
+  rw ← neg_inj at hg1, rw mul_comm at hg1, 
+  rw ← neg_mul at hg1, rw coe_coe at hg1, rw mul_comm at hg1,
+  nth_rewrite 1 mul_comm at hg1, rw ← neg_mul at hg1, rw neg_add at hg1,
+  rw ← sub_eq_add_neg at hg1,
+  nth_rewrite 2 mul_comm at hg1, rw ← neg_mul at hg1, nth_rewrite 2 mul_comm at hg1,
+  nth_rewrite 1 mul_comm at hg1,
+
+  rw neg_add, nth_rewrite 1 mul_add, rw mul_neg_one, 
+  have really : -(3:ℤ) + 2 = -1 := by norm_num,
+  rw add_assoc, rw really, rw ← sub_eq_add_neg,
+  exact hg1,
+ },
+
+ {
+  use -(g + 1),
+  split, exact hg0,
+  left,
+ 
+  rw ← neg_inj at hg2, rw mul_comm at hg2, 
+  rw ← neg_mul at hg2, rw coe_coe at hg2, rw mul_comm at hg2,
+  nth_rewrite 1 mul_comm at hg2, rw ← neg_mul at hg2, rw neg_add at hg2,
+  rw ← sub_eq_add_neg at hg2,
+  nth_rewrite 2 mul_comm at hg2, rw ← neg_mul at hg2, nth_rewrite 2 mul_comm at hg2,
+  nth_rewrite 1 mul_comm at hg2,
+
+  rw neg_add, nth_rewrite 1 mul_add, rw mul_neg_one,
+  have really : -(3:ℤ) + 1 = -2 := by norm_num,
+  rw add_assoc, rw really, rw ← sub_eq_add_neg,
+  exact hg2,
+ },
+
 end
 
 
