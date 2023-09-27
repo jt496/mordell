@@ -1043,6 +1043,23 @@ cases hg12 with hg1 hg2,
 
 end
 
+lemma e1 (n : ℕ) : n + n = 2*n :=
+begin
+have t := two_mul n, exact eq.symm t,
+end
+
+lemma e2 (n : ℕ) : n + 1 + n = 2*n + 1 :=
+begin
+rw add_assoc, nth_rewrite 1 add_comm, rw ← add_assoc, rw (e1 n),
+end
+
+lemma e3 (n : ℕ) : n + 1 + (n + 1) = 2*n + 2 :=
+begin
+have t := two_mul (n + 1), rw ← t, rw mul_add, rw mul_one,
+end
+
+
+
 lemma unit_pow_expansion (k d : ℕ) (p1 q1 r1 : ℤ) (w : k.succ = d) (p q r : ℤ) 
 
   (s1 : 7*(3^(2*d)) + (2*p + 12*r)*(3^(2*d + 1)) + (-(4*q) + 2)*(3^d) + (p^2 + 6*(r^2))*(3^(2*d + 2)) + (2*p - 4*q*r)*(3^(d+1)) + 1 = p1) (s2 : 16*(3^(2*d)) + 32*r*(3^(2*d + 1)) - 10*q*(3^d) + (16* r^2)*(3^(2*d + 2)) + (2*q*p - 12*q*r)*(3^(d+1)) + 2*q = q1) (s3 : 5*(3^(2*d)) + (2*p + 8*r)*(3^(2*d + 1)) + (-(6*q) + 2)*(3^d) + (2*r*p + 3*(r^2))*(3^(2*d + 2)) + (-(6*q)*r + 2*r)*(3^(d + 1)) + q^2 = r1) 
@@ -1054,21 +1071,10 @@ lemma unit_pow_expansion (k d : ℕ) (p1 q1 r1 : ℤ) (w : k.succ = d) (p q r : 
   begin
   rw w at h, rw w, rw [s1, s2, s3],
   rw h, rw mul_mule_3, dsimp, ring_nf, --how to apply only to lhs?
-  have e1 : d + d = 2*d,
-   {
-    have t := two_mul d, exact eq.symm t,
-   },
-  have e2 : d + 1 + d = 2*d + 1,
-   {
-    rw add_assoc, nth_rewrite 1 add_comm, rw ← add_assoc, rw e1,
-   },
-  have e3 : d + 1 + (d + 1) = 2*d + 2,
-   {
-    have t := two_mul (d + 1), rw ← t, rw mul_add, rw mul_one,
-   },
+  
   split,
    {
-    repeat {rw [add_mul, mul_assoc]}, repeat {rw ← pow_add}, repeat {rw [e1, e2, e3]}, repeat {rw ← mul_assoc}, 
+    repeat {rw [add_mul, mul_assoc]}, repeat {rw ← pow_add}, repeat {rw [(e1 d), (e2 d), (e3 d)]}, repeat {rw ← mul_assoc}, 
     rw ← add_mul (2 * p) (12 * r) (3^( 2 * d + 1)), rw ← add_mul (p^2) (6* r^2) (3^( 2 * d + 2)), rw ← add_mul (-(4*q)) 2 (3^d), 
     repeat {rw ← add_assoc}, 
     rw ← s1, 
@@ -1076,17 +1082,39 @@ lemma unit_pow_expansion (k d : ℕ) (p1 q1 r1 : ℤ) (w : k.succ = d) (p q r : 
   split,
    {
     repeat {rw [add_mul, mul_assoc, sub_mul]}, rw mul_assoc (16* r^2) (3^(d+1)) (3^(d+1)), repeat {rw ← pow_add},
-    rw [e1, e2, e3], rw ← sub_mul (2 * q * p) (12 * q * r) (3^(d+1)), 
+    rw [(e1 d), (e2 d), (e3 d)], rw ← sub_mul (2 * q * p) (12 * q * r) (3^(d+1)), 
     repeat {rw ← add_assoc}, rw add_sub (16*(3^(2*d))) (32 * r * (3^(2 * d + 1))) (10 * q * (3^d)),
     rw ← s2,
    },
    
   repeat {rw [add_mul, mul_assoc]}, repeat {rw ← pow_add},
-  rw [e1, e2, e3], repeat {rw ← mul_assoc},
+  rw [(e1 d), (e2 d), (e3 d)], repeat {rw ← mul_assoc},
   rw ← add_mul (2 * p) (8 * r) (3^(2 * d + 1)), rw ← add_mul (-(6 * q)) 2 (3^d), rw ← add_mul (2*r*p) (3* r^2) (3^(2* d + 2)),  rw ← add_mul (-(6 * q) * r) (2*r) (3^(d+1)),
   repeat {rw ← add_assoc},
   rw ← s3,
   end
+
+lemma mul_simp_1 (d : ℕ) (p q r : ℤ) (p3 : ℤ) (t : p = p3):
+
+  (1 + 3 ^ d + 3 ^ (d + 1) * p) * (7 * 3 ^ (2 * d) + (2 * p + 12 * r) * 3 ^ (2 * d + 1) + (-(4 * q) + 2) * 3 ^ d + (p ^ 2 + 6 * r ^ 2) * 3 ^ (2 * d + 2) + (2 * p - 4 * q * r) * 3 ^ (d + 1) + 1)
+
+  + 6 * (3 ^ d + 3 ^ (d + 1) * r) * (5 * 3 ^ (2 * d) + (2 * p + 8 * r) * 3 ^ (2 * d + 1) + (-(6 * q) + 2) * 3 ^ d + (2 * r * p + 3 * r ^ 2) * 3 ^ (2 * d + 2) + (-(6 * q) * r + 2 * r) * 3 ^ (d + 1) + q ^ 2)
+
+  - 2 * q * (5 * 3 ^ (2 * d) + (2 * p + 8 * r) * 3 ^ (2 * d + 1) + (-(6 * q) + 2) * 3 ^ d + (2 * r * p + 3 * r ^ 2) * 3 ^ (2 * d + 2) + (-(6 * q) * r + 2 * r) * 3 ^ (d + 1) + q ^ 2)
+
+  - 2 * (3 ^ d + 3 ^ (d + 1) * r) * (16 * 3 ^ (2 * d) + 32 * r * 3 ^ (2 * d + 1) - 10 * q * 3 ^ d + 16 * r ^ 2 * 3 ^ (2 * d + 2) + (2 * q * p - 12 * q * r) * 3 ^ (d + 1) + 2 * q)
+
+  = p3 :=
+
+begin
+ring_nf,
+repeat {rw [add_mul, mul_assoc]}, repeat {rw ← pow_add},
+repeat {rw [(e1 d), (e2 d), (e3 d)]},
+rw ← right_distrib (-(20*q)) 14 (3^(2*d)), rw ← mul_assoc (-(8*q)) p (3^(2*d + 1)), rw ← mul_assoc 4 p (3^(2*d + 1)), rw ← right_distrib (-(8 * q) * p) (4 * p) (3^(2*d + 1)), 
+rw ← mul_assoc (-(32*q)) r (3^(2*d + 1)), rw ← mul_assoc 24 r (3^(2*d + 1)), rw ← right_distrib (-(32*q) * r) (24 * r) (3^(2*d + 1)), rw ← right_distrib (-(8 * q) * p + 4 * p) (-(32 * q) * r + 24 * r) (3^(2*d + 1)),
+
+sorry
+end
 
 lemma unit_pow_expansion_final (k  d : ℕ) (p1 q1 r1 : ℤ) (p2 q2 r2 : ℤ) (w : k.succ = d) (p q r : ℤ) 
 
@@ -1096,17 +1124,27 @@ lemma unit_pow_expansion_final (k  d : ℕ) (p1 q1 r1 : ℤ) (p2 q2 r2 : ℤ) (w
 
   (h : ((unit^(3^k.succ)):ℤθ) = ⟨1 + 3^k.succ + (3^(k.succ + 1))*p, q, 3^k.succ + (3^(k.succ + 1))*r⟩) :
 
-  ((unit^(3^(k.succ + 1))):ℤθ) = ⟨p , q, r⟩ :=
+  ((unit^(3^(k.succ + 1))):ℤθ) = ⟨p2 , q2, r2⟩ :=
 
   begin
+
   rw [pow_add, pow_mul, pow_one, pow_three],
   have torture := unit_pow_expansion, 
   specialize torture k d p1 q1 r1 w p q r s1 s2 s3 h, 
+  rw torture, rw h,  rw w, clear s1 s2 s3 h torture,
   
-
-
+  rw mul_mule_3, dsimp, 
+  ext; dsimp,
   
-  sorry,
+   {
+    sorry
+   },
+
+   {
+    sorry
+   },
+
+  sorry
   end
 
 
