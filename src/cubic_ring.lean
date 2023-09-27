@@ -1058,7 +1058,17 @@ begin
 have t := two_mul (n + 1), rw ← t, rw mul_add, rw mul_one,
 end
 
+lemma e4 (n : ℕ) : 2*n + 2 + n = 3*n + 2 :=
+begin
+rw add_assoc, rw add_comm 2 n, rw ← add_assoc,
+nth_rewrite 1 ← one_mul n, rw ← right_distrib 2 1 n, 
+end
 
+lemma e5 (n : ℕ) : 2*n + 1 + n = 3*n + 1 :=
+begin
+rw add_assoc, rw add_comm 1 n, rw ← add_assoc,
+nth_rewrite 1 ← one_mul n, rw ← right_distrib 2 1 n, 
+end
 
 lemma unit_pow_expansion (k d : ℕ) (p1 q1 r1 : ℤ) (w : k.succ = d) (p q r : ℤ) 
 
@@ -1110,9 +1120,14 @@ begin
 ring_nf,
 repeat {rw [add_mul, mul_assoc]}, repeat {rw ← pow_add},
 repeat {rw [(e1 d), (e2 d), (e3 d)]},
+
 rw ← right_distrib (-(20*q)) 14 (3^(2*d)), rw ← mul_assoc (-(8*q)) p (3^(2*d + 1)), rw ← mul_assoc 4 p (3^(2*d + 1)), rw ← right_distrib (-(8 * q) * p) (4 * p) (3^(2*d + 1)), 
 rw ← mul_assoc (-(32*q)) r (3^(2*d + 1)), rw ← mul_assoc 24 r (3^(2*d + 1)), rw ← right_distrib (-(32*q) * r) (24 * r) (3^(2*d + 1)), rw ← right_distrib (-(8 * q) * p + 4 * p) (-(32 * q) * r + 24 * r) (3^(2*d + 1)),
 
+rw ← mul_assoc (3 ^ (2 * d + 2))  p  (p * 3 ^ d), rw mul_comm (3 ^ (2 * d + 2))  p, rw mul_assoc p (3 ^ (2 * d + 2)) (p * 3 ^ d),
+rw ← mul_assoc (3 ^ (2 * d + 2)) p (3 ^ d), rw mul_comm (3 ^ (2 * d + 2)) p, rw mul_assoc p (3 ^ (2 * d + 2)) (3^d), rw ← pow_add, rw (e4 d),
+rw ← mul_assoc (3 ^ (2*d + 2)) r (p * (3^d)), rw mul_comm (3 ^ (2*d + 2)) r, rw mul_assoc r (3 ^ (2*d + 2)) (p * (3^d)), rw ← mul_assoc (3 ^ (2*d + 2)) p (3^d), rw mul_comm (3 ^ (2*d + 2)) p, rw mul_assoc p (3 ^ (2*d + 2)) (3^d), rw ← pow_add, rw (e4 d),
+rw ← mul_assoc  (3 ^ (2 * d + 1))  p (3 ^ d), rw mul_comm (3 ^ (2 * d + 1))  p, rw mul_assoc p (3 ^ (2 * d + 1)) (3 ^ d), rw ← pow_add, rw (e5 d),
 sorry
 end
 
