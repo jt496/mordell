@@ -1043,6 +1043,25 @@ cases hg12 with hg1 hg2,
 
 end
 
+lemma unit_pow_pow_three (n : ℕ) :
+  ∃ (a b : ℤ), ((((unit^(3^(n+1))):ℤθˣ):ℤθ).f = 1 + (3^(n+1)) + (3^(n+2))*a) ∧ (((unit^(3^(n+1)):ℤθˣ):ℤθ).h = (3^(n+1)) + (3^(n+2))*b) :=
+  begin
+  induction n with k hk,
+   {
+    rw zero_add, rw zero_add,
+    rw pow_one, rw pow_one,
+    change ∃ (a b : ℤ), ((unit:ℤθ)^3).f = 1 + 3 + (3^2)*a ∧ ((unit:ℤθ)^3).h = 3 + (3^2) * b,
+    rw unit_cubed, dsimp,
+    use (-3), use (-2), norm_num,
+   },
+  have l : k + 1 = k.succ := by refl,
+  rw ← one_add_one_eq_two at hk, rw ← add_assoc at hk, rw l at hk,
+  cases hk with j hj, cases hj with p hp,
+  
+
+  sorry
+  end
+
 
 
 
