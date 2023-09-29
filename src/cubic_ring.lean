@@ -326,7 +326,10 @@ instance is_ring : comm_ring ℤθ :=
 #eval θ^3
 #eval θ^4
 #eval (25+13*θ+5*θ^2)^3
-#eval (-1-3*θ-θ^2)^2
+#eval (-1-3*θ-θ^2)^3
+#eval (-1-3*θ-θ^2)^6
+#eval (-1-3*θ-θ^2)^9
+
 
 def Norm : ℤθ → ℤ := λ k, | k.f^3 - 2*k.g^3 + 4*k.h^3 - 3*k.f^2*k.g - 3*k.f^2*k.h + 6*k.f*k.g^2 + 6*k.g^2*k.h + 24*k.f*k.h^2 - 12*k.g*k.h^2 - 12*k.f*k.g*k.h |
 
@@ -1043,148 +1046,69 @@ cases hg12 with hg1 hg2,
 
 end
 
-lemma e1 (n : ℕ) : n + n = 2*n :=
+lemma unit_pow_six : (unit:ℤθ)^6 = ⟨-1901, -4842, -336⟩ :=
 begin
-have t := two_mul n, exact eq.symm t,
+have elem : 6 = 3 + 3 := by norm_num, rw elem, rw pow_add, rw unit_cubed,
+rw mul_mule_3, dsimp, ring_nf, 
+split, refl, split, refl, refl,
 end
 
-lemma e2 (n : ℕ) : n + 1 + n = 2*n + 1 :=
+lemma unit_pow_nine : (unit:ℤθ)^9 = ⟨-113633, -251019, 75015⟩ :=
 begin
-rw add_assoc, nth_rewrite 1 add_comm, rw ← add_assoc, rw (e1 n),
+have elem : 9 = 3 + 3 + 3 := by norm_num, rw elem, rw pow_add, 
+have elem1 : 3 + 3 = 6 := by norm_num, rw elem1, rw unit_cubed, rw unit_pow_six,
+rw mul_mule_3, dsimp, ring_nf,
+split, refl, split, refl, refl,
 end
-
-lemma e3 (n : ℕ) : n + 1 + (n + 1) = 2*n + 2 :=
-begin
-have t := two_mul (n + 1), rw ← t, rw mul_add, rw mul_one,
-end
-
-lemma e4 (n : ℕ) : 2*n + 2 + n = 3*n + 2 :=
-begin
-rw add_assoc, rw add_comm 2 n, rw ← add_assoc,
-nth_rewrite 1 ← one_mul n, rw ← right_distrib 2 1 n, 
-end
-
-lemma e5 (n : ℕ) : 2*n + 1 + n = 3*n + 1 :=
-begin
-rw add_assoc, rw add_comm 1 n, rw ← add_assoc,
-nth_rewrite 1 ← one_mul n, rw ← right_distrib 2 1 n, 
-end
-
-lemma unit_pow_expansion (k d : ℕ) (p1 q1 r1 : ℤ) (w : k.succ = d) (p q r : ℤ) 
-
-  (s1 : 7*(3^(2*d)) + (2*p + 12*r)*(3^(2*d + 1)) + (-(4*q) + 2)*(3^d) + (p^2 + 6*(r^2))*(3^(2*d + 2)) + (2*p - 4*q*r)*(3^(d+1)) + 1 = p1) (s2 : 16*(3^(2*d)) + 32*r*(3^(2*d + 1)) - 10*q*(3^d) + (16* r^2)*(3^(2*d + 2)) + (2*q*p - 12*q*r)*(3^(d+1)) + 2*q = q1) (s3 : 5*(3^(2*d)) + (2*p + 8*r)*(3^(2*d + 1)) + (-(6*q) + 2)*(3^d) + (2*r*p + 3*(r^2))*(3^(2*d + 2)) + (-(6*q)*r + 2*r)*(3^(d + 1)) + q^2 = r1) 
-  
-  (h : ((unit^(3^k.succ)):ℤθ) = ⟨1 + 3^k.succ + (3^(k.succ + 1))*p, q, 3^k.succ + (3^(k.succ + 1))*r⟩) :
-
-  ((unit^(3^(k.succ))):ℤθ) * ((unit^(3^(k.succ))):ℤθ) = ⟨7*(3^(2*d)) + (2*p + 12*r)*(3^(2*d + 1)) + (-(4*q) + 2)*(3^d) + (p^2 + 6*(r^2))*(3^(2*d + 2)) + (2*p - 4*q*r)*(3^(d+1)) + 1 , 16*(3^(2*d)) + 32*r*(3^(2*d + 1)) - 10*q*(3^d) + (16* r^2)*(3^(2*d + 2)) + (2*q*p - 12*q*r)*(3^(d+1)) + 2*q, 5*(3^(2*d)) + (2*p + 8*r)*(3^(2*d + 1)) + (-(6*q) + 2)*(3^d) + (2*r*p + 3*(r^2))*(3^(2*d + 2)) + (-(6*q)*r + 2*r)*(3^(d + 1)) + q^2⟩ :=
-  
-  begin
-  rw w at h, rw w, rw [s1, s2, s3],
-  rw h, rw mul_mule_3, dsimp, ring_nf, --how to apply only to lhs?
-  
-  split,
-   {
-    repeat {rw [add_mul, mul_assoc]}, repeat {rw ← pow_add}, repeat {rw [(e1 d), (e2 d), (e3 d)]}, repeat {rw ← mul_assoc}, 
-    rw ← add_mul (2 * p) (12 * r) (3^( 2 * d + 1)), rw ← add_mul (p^2) (6* r^2) (3^( 2 * d + 2)), rw ← add_mul (-(4*q)) 2 (3^d), 
-    repeat {rw ← add_assoc}, 
-    rw ← s1, 
-   },
-  split,
-   {
-    repeat {rw [add_mul, mul_assoc, sub_mul]}, rw mul_assoc (16* r^2) (3^(d+1)) (3^(d+1)), repeat {rw ← pow_add},
-    rw [(e1 d), (e2 d), (e3 d)], rw ← sub_mul (2 * q * p) (12 * q * r) (3^(d+1)), 
-    repeat {rw ← add_assoc}, rw add_sub (16*(3^(2*d))) (32 * r * (3^(2 * d + 1))) (10 * q * (3^d)),
-    rw ← s2,
-   },
-   
-  repeat {rw [add_mul, mul_assoc]}, repeat {rw ← pow_add},
-  rw [(e1 d), (e2 d), (e3 d)], repeat {rw ← mul_assoc},
-  rw ← add_mul (2 * p) (8 * r) (3^(2 * d + 1)), rw ← add_mul (-(6 * q)) 2 (3^d), rw ← add_mul (2*r*p) (3* r^2) (3^(2* d + 2)),  rw ← add_mul (-(6 * q) * r) (2*r) (3^(d+1)),
-  repeat {rw ← add_assoc},
-  rw ← s3,
-  end
-
-lemma mul_simp_1 (d : ℕ) (p q r : ℤ) (p3 : ℤ) (t : p = p3):
-
-  (1 + 3 ^ d + 3 ^ (d + 1) * p) * (7 * 3 ^ (2 * d) + (2 * p + 12 * r) * 3 ^ (2 * d + 1) + (-(4 * q) + 2) * 3 ^ d + (p ^ 2 + 6 * r ^ 2) * 3 ^ (2 * d + 2) + (2 * p - 4 * q * r) * 3 ^ (d + 1) + 1)
-
-  + 6 * (3 ^ d + 3 ^ (d + 1) * r) * (5 * 3 ^ (2 * d) + (2 * p + 8 * r) * 3 ^ (2 * d + 1) + (-(6 * q) + 2) * 3 ^ d + (2 * r * p + 3 * r ^ 2) * 3 ^ (2 * d + 2) + (-(6 * q) * r + 2 * r) * 3 ^ (d + 1) + q ^ 2)
-
-  - 2 * q * (5 * 3 ^ (2 * d) + (2 * p + 8 * r) * 3 ^ (2 * d + 1) + (-(6 * q) + 2) * 3 ^ d + (2 * r * p + 3 * r ^ 2) * 3 ^ (2 * d + 2) + (-(6 * q) * r + 2 * r) * 3 ^ (d + 1) + q ^ 2)
-
-  - 2 * (3 ^ d + 3 ^ (d + 1) * r) * (16 * 3 ^ (2 * d) + 32 * r * 3 ^ (2 * d + 1) - 10 * q * 3 ^ d + 16 * r ^ 2 * 3 ^ (2 * d + 2) + (2 * q * p - 12 * q * r) * 3 ^ (d + 1) + 2 * q)
-
-  = p3 :=
-
-begin
-ring_nf,
-repeat {rw [add_mul, mul_assoc]}, repeat {rw ← pow_add},
-repeat {rw [(e1 d), (e2 d), (e3 d)]},
-
-rw ← right_distrib (-(20*q)) 14 (3^(2*d)), rw ← mul_assoc (-(8*q)) p (3^(2*d + 1)), rw ← mul_assoc 4 p (3^(2*d + 1)), rw ← right_distrib (-(8 * q) * p) (4 * p) (3^(2*d + 1)), 
-rw ← mul_assoc (-(32*q)) r (3^(2*d + 1)), rw ← mul_assoc 24 r (3^(2*d + 1)), rw ← right_distrib (-(32*q) * r) (24 * r) (3^(2*d + 1)), rw ← right_distrib (-(8 * q) * p + 4 * p) (-(32 * q) * r + 24 * r) (3^(2*d + 1)),
-
-rw ← mul_assoc (3 ^ (2 * d + 2))  p  (p * 3 ^ d), rw mul_comm (3 ^ (2 * d + 2))  p, rw mul_assoc p (3 ^ (2 * d + 2)) (p * 3 ^ d),
-rw ← mul_assoc (3 ^ (2 * d + 2)) p (3 ^ d), rw mul_comm (3 ^ (2 * d + 2)) p, rw mul_assoc p (3 ^ (2 * d + 2)) (3^d), rw ← pow_add, rw (e4 d),
-rw ← mul_assoc (3 ^ (2*d + 2)) r (p * (3^d)), rw mul_comm (3 ^ (2*d + 2)) r, rw mul_assoc r (3 ^ (2*d + 2)) (p * (3^d)), rw ← mul_assoc (3 ^ (2*d + 2)) p (3^d), rw mul_comm (3 ^ (2*d + 2)) p, rw mul_assoc p (3 ^ (2*d + 2)) (3^d), rw ← pow_add, rw (e4 d),
-rw ← mul_assoc  (3 ^ (2 * d + 1))  p (3 ^ d), rw mul_comm (3 ^ (2 * d + 1))  p, rw mul_assoc p (3 ^ (2 * d + 1)) (3 ^ d), rw ← pow_add, rw (e5 d),
-sorry
-end
-
-lemma unit_pow_expansion_final (k  d : ℕ) (p1 q1 r1 : ℤ) (p2 q2 r2 : ℤ) (w : k.succ = d) (p q r : ℤ) 
-
-  (s1 : 7*(3^(2*d)) + (2*p + 12*r)*(3^(2*d + 1)) + (-(4*q) + 2)*(3^d) + (p^2 + 6*(r^2))*(3^(2*d + 2)) + (2*p - 4*q*r)*(3^(d+1)) + 1 = p1) (s2 : 16*(3^(2*d)) + 32*r*(3^(2*d + 1)) - 10*q*(3^d) + (16* r^2)*(3^(2*d + 2)) + (2*q*p - 12*q*r)*(3^(d+1)) + 2*q = q1) (s3 : 5*(3^(2*d)) + (2*p + 8*r)*(3^(2*d + 1)) + (-(6*q) + 2)*(3^d) + (2*r*p + 3*(r^2))*(3^(2*d + 2)) + (-(6*q)*r + 2*r)*(3^(d + 1)) + q^2 = r1) 
-
-  (a1 : p = p2) (a2 : q = q2) (a3 : r = r2)
-
-  (h : ((unit^(3^k.succ)):ℤθ) = ⟨1 + 3^k.succ + (3^(k.succ + 1))*p, q, 3^k.succ + (3^(k.succ + 1))*r⟩) :
-
-  ((unit^(3^(k.succ + 1))):ℤθ) = ⟨p2 , q2, r2⟩ :=
-
-  begin
-
-  rw [pow_add, pow_mul, pow_one, pow_three],
-  have torture := unit_pow_expansion, 
-  specialize torture k d p1 q1 r1 w p q r s1 s2 s3 h, 
-  rw torture, rw h,  rw w, clear s1 s2 s3 h torture,
-  
-  rw mul_mule_3, dsimp, 
-  ext; dsimp,
-  
-   {
-    sorry
-   },
-
-   {
-    sorry
-   },
-
-  sorry
-  end
-
 
 
 lemma unit_pow_three_pow (n : ℕ) :
-  ∃ (a b c: ℤ), ((((unit^(3^(n+1))):ℤθˣ):ℤθ).f = 1 + (3^(n+1)) + (3^(n+2))*a) ∧ (((unit^(3^(n+1))):ℤθˣ):ℤθ).g = b ∧ (((unit^(3^(n+1)):ℤθˣ):ℤθ).h = (3^(n+1)) + (3^(n+2))*c) :=
+  ∃ (a b c: ℤ), ((((unit^(3^(n+1))):ℤθˣ):ℤθ).f = 1 + (3^(n+1)) + (3^(n+2))*a) ∧ (((unit^(3^(n+1))):ℤθˣ):ℤθ).g = (3^(n+2))*b ∧ (((unit^(3^(n+1)):ℤθˣ):ℤθ).h = (3^(n+1)) + (3^(n+2))*c) :=
   begin
   induction n with k hk,
    {
     rw zero_add, rw zero_add,
     rw pow_one, rw pow_one,
-    change ∃ (a b c: ℤ), ((unit:ℤθ)^3).f = 1 + 3 + (3^2)*a ∧ ((unit:ℤθ)^3).g = b ∧ ((unit:ℤθ)^3).h = 3 + (3^2) * c,
+    change ∃ (a b c: ℤ), ((unit:ℤθ)^3).f = 1 + 3 + (3^2)*a ∧ ((unit:ℤθ)^3).g = (3^(2))*b ∧ ((unit:ℤθ)^3).h = 3 + (3^2) * c,
     rw unit_cubed, dsimp,
-    use (-3), use (-63), use (-2), norm_num,
+    use (-3), use (-7), use (-2), norm_num,
    },
   have l : k + 1 = k.succ := by refl,
   rw ← one_add_one_eq_two at hk, rw ← add_assoc at hk, rw l at hk,
   cases hk with p hp, cases hp with q hq, cases hq with r hr, cases hr with h1 h23, cases h23 with h2 h3,
-  have t : ((unit^(3^k.succ)):ℤθ) = ⟨1 + 3^k.succ + (3^(k.succ + 1))*p, q, 3^k.succ + (3^(k.succ + 1))*r⟩,
+  have t : ((unit^(3^k.succ)):ℤθ) = ⟨1 + 3^k.succ + (3^(k.succ + 1))*p, (3^(k.succ + 1))*q, 3^k.succ + (3^(k.succ + 1))*r⟩,
    {
     ext; dsimp,
     exact_mod_cast h1, exact_mod_cast h2, exact_mod_cast h3,
    },
-  
 
+  have g := le_or_gt k.succ 1,
+  have lower : 1 ≤ k.succ,
+   {
+    rw ← l, simp,
+   },
+  cases g with g1 g2,
+   {
+    have upper : k.succ < 2, --really? no better way?
+     {
+      have elem := eq_or_lt_of_le g1, cases elem with f1 f2, rw f1, norm_num,
+      have kg : 2 ≥ 1 := by norm_num, have f3 := has_lt.lt.gt f2, have f4 := gt_of_ge_of_gt kg f3,
+      have f5 := gt.lt f4, exact f5,
+     },
+    interval_cases using lower upper,
+    rw h, rw one_add_one_eq_two,
+    have e1 : 1 + 2 = 3 := by norm_num, have e2 : 3 ^ 2 = 9 := by norm_num, have e3 : 3 ^ 3 = 27 := by norm_num,
+    rw e1, rw e2, --why doesn't rw [e1, e2, e3] work at the start?
+    have t : (((unit^9):ℤθˣ):ℤθ) = (unit:ℤθ)^9 := by norm_cast,
+    rw t, rw unit_pow_nine, dsimp,
+    use (-4209), use (-9297), use (2778),
+    norm_num,
+   },
+  
+  change k.succ ≥ 2 at g2, clear lower,
+
+  
+  
   sorry
   end
 
