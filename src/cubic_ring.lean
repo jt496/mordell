@@ -1062,7 +1062,7 @@ split, refl, split, refl, refl,
 end
 
 
-lemma unit_pow_three_pow (n : ℕ) :
+lemma unit_pow_three_pow_1 (n : ℕ) :
   ∃ (a b c: ℤ), ((((unit^(3^(n+1))):ℤθˣ):ℤθ).f = 1 + (3^(n+1)) + (3^(n+2))*a) ∧ (((unit^(3^(n+1))):ℤθˣ):ℤθ).g = (3^(n+2))*b ∧ (((unit^(3^(n+1)):ℤθˣ):ℤθ).h = (3^(n+1)) + (3^(n+2))*c) :=
   begin
   induction n with k hk,
@@ -1107,13 +1107,25 @@ lemma unit_pow_three_pow (n : ℕ) :
   
   change k.succ ≥ 2 at g2, clear lower,
 
-  
+
   
   sorry
   end
 
-
-
+lemma unit_pow_three_pow_2 (n : ℕ) :
+  ∃ (a b c: ℤ), ((((unit^(3^(n+1))):ℤθˣ):ℤθ).f = 1 + (3^(n+1))*a) ∧ (((unit^(3^(n+1))):ℤθˣ):ℤθ).g = (3^(n+1))*b ∧ (((unit^(3^(n+1)):ℤθˣ):ℤθ).h = (3^(n+1))*c) :=
+begin
+have need := unit_pow_three_pow_1 n, cases need with a ha, cases ha with b hb, cases hb with c hc,
+cases hc with h1 h23, cases h23 with h2 h3, rw [h1, h2, h3],
+use (1 + 3*a), use (3*b), use (1 + 3*c),
+repeat {rw [mul_add, mul_one]}, repeat {rw ← mul_assoc},
+have sim : 3 ^ (n + 1) * 3 = 3^(n + 2),
+ {
+  nth_rewrite 1 ← pow_one 3, rw ← pow_add,
+ },
+rw ← add_assoc, 
+sorry
+end
 
 theorem units (a : (ℤθ)ˣ) (h : a.val.h = 0) :
   a = 1 ∨ a = -1 :=
