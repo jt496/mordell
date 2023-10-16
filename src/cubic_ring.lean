@@ -27,6 +27,9 @@ structure ℤθ : Type :=
 
 namespace ℤθ
 
+-- instance : has_coe ℤ ℤθ := ⟨λ x, ⟨x,0,0⟩⟩
+
+
 --We give lean a method for checking whether two such integers are equal.
 
 noncomputable
@@ -1107,10 +1110,32 @@ lemma unit_pow_three_pow_1 (n : ℕ) :
   
   change k.succ ≥ 2 at g2, clear lower,
 
-
-  
   sorry
-  end
+end
+
+example (a b c : ℤ): (a : ℤθ) + θ * b + c * θ^2 = ⟨a,b,c⟩ :=
+begin
+  ext,
+  simp,
+  rw [θ],
+  
+end
+
+
+#eval unit^3
+
+lemma unit_pow_three_pow_2 (n : ℕ) :
+  ∃ φ : ℤθ, (((unit^(3^(n+1))):ℤθˣ):ℤθ) = 1 + 3^(n+1) * φ :=
+begin
+  induction n with n ih,
+  use ⟨-8,-21,-5⟩,
+  refl,
+  obtain ⟨ψ,hψ⟩ := ih,
+  use ψ + 3^(n+1) * ψ^2 +3^(2*n+2) * ψ^3,
+  sorry,
+end
+
+#exit
 
 lemma unit_pow_three_pow_2 (n : ℕ) :
   ∃ (a b c: ℤ), ((((unit^(3^(n+1))):ℤθˣ):ℤθ).f = 1 + (3^(n+1))*a) ∧ (((unit^(3^(n+1))):ℤθˣ):ℤθ).g = (3^(n+1))*b ∧ (((unit^(3^(n+1)):ℤθˣ):ℤθ).h = (3^(n+1))*c) :=
@@ -1119,12 +1144,14 @@ have need := unit_pow_three_pow_1 n, cases need with a ha, cases ha with b hb, c
 cases hc with h1 h23, cases h23 with h2 h3, rw [h1, h2, h3],
 use (1 + 3*a), use (3*b), use (1 + 3*c),
 repeat {rw [mul_add, mul_one]}, repeat {rw ← mul_assoc},
-have sim : 3 ^ (n + 1) * 3 = 3^(n + 2),
+have sim : (3 ^ (n + 1) * 3: ℤ) = 3^(n + 2),
  {
-  nth_rewrite 1 ← pow_one 3, rw ← pow_add,
+  nth_rewrite 1 ← pow_one (3:ℤ), rw ← pow_add,
  },
-rw ← add_assoc, 
-sorry
+rw ← add_assoc,
+rw [sim],
+tauto,
+split;
 end
 
 theorem units (a : (ℤθ)ˣ) (h : a.val.h = 0) :
